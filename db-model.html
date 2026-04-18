@@ -7,37 +7,42 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    :root{
-      --bg:#0a0e1a;--card:#141c35;--surface:#0f1628;
-      --accent:#00d4ff;--accent2:#7c3aed;--accent3:#10b981;--accent4:#f59e0b;
-      --text:#e2e8f0;--muted:#64748b;--border:#1e2d4a;
-    }
+    :root{--bg:#0a0e1a;--card:#141c35;--surface:#0f1628;--accent:#00d4ff;--accent2:#7c3aed;--accent3:#10b981;--accent4:#f59e0b;--text:#e2e8f0;--muted:#64748b;--border:#1e2d4a;}
     html{scroll-behavior:smooth;}
     body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;}
+
+    #progress-bar{position:fixed;top:0;left:0;height:2px;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3));z-index:9999;box-shadow:0 0 8px var(--accent);}
+
     #bg-canvas{position:fixed;inset:0;z-index:0;opacity:0.2;pointer-events:none;}
     .grid-overlay{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:60px 60px;}
     .wrapper{position:relative;z-index:1;}
 
     /* NAV */
-    nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2.5rem;border-bottom:1px solid var(--border);backdrop-filter:blur(20px);background:rgba(10,14,26,0.92);position:sticky;top:0;z-index:100;}
+    nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2.5rem;border-bottom:1px solid var(--border);backdrop-filter:blur(20px);background:rgba(10,14,26,0.92);position:sticky;top:0;z-index:100;transition:padding 0.3s,box-shadow 0.3s;}
+    nav.scrolled{padding:0.6rem 2.5rem;box-shadow:0 4px 30px rgba(0,212,255,0.08);border-bottom-color:rgba(0,212,255,0.15);}
     .nav-brand{display:flex;align-items:center;gap:0.8rem;text-decoration:none;color:inherit;}
-    .nav-logo-box{width:34px;height:34px;border-radius:6px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.58rem;font-weight:700;color:#000;}
+    .nav-logo-box{width:34px;height:34px;border-radius:6px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.58rem;font-weight:700;color:#000;transition:transform 0.3s,box-shadow 0.3s;}
+    .nav-brand:hover .nav-logo-box{transform:rotate(10deg) scale(1.1);box-shadow:0 0 16px rgba(0,212,255,0.4);}
     .nav-name{font-weight:800;font-size:0.95rem;}
     .nav-name span{color:var(--accent);}
-    .nav-back{display:flex;align-items:center;gap:0.5rem;font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--muted);text-decoration:none;border:1px solid var(--border);padding:0.4rem 1rem;border-radius:4px;transition:color 0.2s,border-color 0.2s;}
-    .nav-back:hover{color:var(--accent);border-color:var(--accent);}
+    .nav-back{display:flex;align-items:center;gap:0.5rem;font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--muted);text-decoration:none;border:1px solid var(--border);padding:0.4rem 1rem;border-radius:4px;transition:color 0.2s,border-color 0.2s,transform 0.2s;}
+    .nav-back:hover{color:var(--accent);border-color:var(--accent);transform:translateX(-3px);}
 
     /* HERO */
     .hero{padding:2.5rem 2rem 1.5rem;max-width:1500px;margin:0 auto;}
     .breadcrumb{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;opacity:0;animation:fadeUp 0.6s ease forwards 0.1s;}
     .breadcrumb a{color:var(--accent);text-decoration:none;}
-    .hero-top{display:flex;align-items:center;gap:1.2rem;margin-bottom:1rem;opacity:0;animation:fadeUp 0.6s ease forwards 0.2s;}
-    .hero-icon{width:54px;height:54px;border-radius:10px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;}
+    .hero-top{display:flex;align-items:center;gap:1.2rem;margin-bottom:1rem;opacity:0;animation:fadeUp 0.6s ease forwards 0.25s;}
+    .hero-icon{width:54px;height:54px;border-radius:10px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.3s;}
+    .hero-icon:hover{transform:scale(1.1) rotate(-5deg);box-shadow:0 0 24px rgba(0,212,255,0.3);}
     .hero-code{font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--accent);letter-spacing:0.12em;margin-bottom:0.2rem;}
     .hero-title{font-size:clamp(1.5rem,3vw,2.4rem);font-weight:800;letter-spacing:-0.02em;}
-    .hero-title span{background:linear-gradient(135deg,var(--accent),#0099cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-    .version-row{display:flex;align-items:center;gap:0.7rem;flex-wrap:wrap;opacity:0;animation:fadeUp 0.6s ease forwards 0.3s;margin-bottom:1.5rem;}
-    .v-badge{font-family:'Space Mono',monospace;font-size:0.62rem;padding:0.22rem 0.65rem;border-radius:3px;border:1px solid;letter-spacing:0.07em;}
+    .hero-title span{background:linear-gradient(135deg,var(--accent),#0099cc);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradientShift 4s linear infinite;}
+    @keyframes gradientShift{0%{background-position:0% center}100%{background-position:200% center}}
+
+    .version-row{display:flex;align-items:center;gap:0.7rem;flex-wrap:wrap;opacity:0;animation:fadeUp 0.6s ease forwards 0.4s;margin-bottom:1.5rem;}
+    .v-badge{font-family:'Space Mono',monospace;font-size:0.62rem;padding:0.22rem 0.65rem;border-radius:3px;border:1px solid;letter-spacing:0.07em;transition:transform 0.2s;}
+    .v-badge:hover{transform:translateY(-2px);}
     .v-blue  {color:var(--accent); border-color:rgba(0,212,255,0.3);  background:rgba(0,212,255,0.07);}
     .v-green {color:var(--accent3);border-color:rgba(16,185,129,0.3); background:rgba(16,185,129,0.07);}
     .v-purple{color:var(--accent2);border-color:rgba(124,58,237,0.3); background:rgba(124,58,237,0.07);}
@@ -45,47 +50,44 @@
     .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);}
 
     /* LEGEND */
-    .legend-bar{padding:1rem 2rem;max-width:1500px;margin:0 auto;display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center;font-family:'Space Mono',monospace;font-size:0.62rem;}
+    .legend-bar{padding:1rem 2rem;max-width:1500px;margin:0 auto;display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center;font-family:'Space Mono',monospace;font-size:0.62rem;opacity:0;animation:fadeUp 0.6s ease forwards 0.5s;}
     .l-item{display:flex;align-items:center;gap:0.35rem;}
     .lk{padding:0.08rem 0.35rem;border-radius:2px;font-size:0.54rem;font-weight:700;}
     .lk-pk{background:rgba(0,212,255,0.15);color:#00d4ff;border:1px solid rgba(0,212,255,0.3);}
     .lk-fk{background:rgba(124,58,237,0.15);color:#7c3aed;border:1px solid rgba(124,58,237,0.3);}
     .lk-uk{background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3);}
     .l-sep{width:1px;height:14px;background:var(--border);}
-    .c-int    {color:#e2e8f0;}
-    .c-varchar{color:#f59e0b;}
-    .c-decimal{color:#10b981;}
-    .c-date   {color:#f472b6;}
-    .c-enum   {color:#a78bfa;}
-    .c-bool   {color:#fb923c;}
-    .c-text   {color:#94a3b8;}
+    .c-int{color:#e2e8f0;} .c-varchar{color:#f59e0b;} .c-decimal{color:#10b981;} .c-date{color:#f472b6;} .c-enum{color:#a78bfa;} .c-bool{color:#fb923c;} .c-text{color:#94a3b8;}
     .l-rel{display:flex;align-items:center;gap:0.4rem;color:var(--muted);}
     .l-rel-line{display:flex;align-items:center;gap:2px;}
     .l-1{color:#10b981;font-weight:700;}
     .l-dash{width:22px;height:1.5px;background:var(--accent);opacity:0.6;}
     .l-n{color:var(--accent);font-weight:700;font-size:0.85rem;}
 
-    /* ── ERD CANVAS AREA ── */
+    /* ERD */
     .erd-outer{padding:1.5rem 1rem 3rem;overflow-x:auto;}
     .erd-canvas{position:relative;margin:0 auto;}
-
-    /* SVG overlay for lines */
     #rel-svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:2;}
 
     /* GROUP LABELS */
-    .grp-label{position:absolute;font-family:'Space Mono',monospace;font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:0.5rem;}
+    .grp-label{position:absolute;font-family:'Space Mono',monospace;font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:0.5rem;opacity:0;animation:fadeUp 0.5s ease forwards 0.6s;}
     .grp-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(0,212,255,0.3),transparent);width:80px;display:inline-block;}
 
-    /* TABLE CARDS */
-    .tbl{position:absolute;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:box-shadow 0.25s,border-color 0.25s;z-index:3;}
-    .tbl:hover{border-color:rgba(0,212,255,0.4);box-shadow:0 8px 30px rgba(0,212,255,0.12);}
+    /* TABLE CARDS with hover animations */
+    .tbl{
+      position:absolute;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;
+      transition:box-shadow 0.3s,border-color 0.3s,transform 0.3s;z-index:3;
+      opacity:0;animation:tableAppear 0.5s ease forwards;
+    }
+    @keyframes tableAppear{from{opacity:0;transform:translateY(12px) scale(0.97)}to{opacity:1;transform:none}}
+    .tbl:hover{border-color:rgba(0,212,255,0.4);box-shadow:0 8px 30px rgba(0,212,255,0.15);transform:translateY(-3px) scale(1.01);z-index:10;}
 
     .th{padding:0.55rem 0.85rem;display:flex;align-items:center;gap:0.45rem;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.25);}
     .th-icon{font-size:0.85rem;}
     .th-name{font-family:'Space Mono',monospace;font-size:0.65rem;font-weight:700;letter-spacing:0.06em;color:var(--accent);}
 
     .tr{display:flex;align-items:center;gap:0.35rem;padding:0.22rem 0.85rem;transition:background 0.15s;}
-    .tr:hover{background:rgba(255,255,255,0.03);}
+    .tr:hover{background:rgba(0,212,255,0.04);}
     .kb{font-family:'Space Mono',monospace;font-size:0.5rem;padding:0.07rem 0.3rem;border-radius:2px;font-weight:700;flex-shrink:0;min-width:20px;text-align:center;}
     .kb-pk{background:rgba(0,212,255,0.15);color:#00d4ff;}
     .kb-fk{background:rgba(124,58,237,0.15);color:#7c3aed;}
@@ -99,17 +101,34 @@
     .footer-txt{font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--muted);}
 
     @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+    /* PAGE LOADER */
+    #page-loader{position:fixed;inset:0;background:var(--bg);z-index:9998;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;animation:loaderFadeOut 0.5s ease forwards 1.2s;}
+    @keyframes loaderFadeOut{to{opacity:0;pointer-events:none;visibility:hidden;}}
+    .loader-logo{font-family:'Space Mono',monospace;font-size:2rem;font-weight:700;color:var(--accent);animation:loaderPulse 0.8s ease-in-out infinite alternate;}
+    @keyframes loaderPulse{from{opacity:0.3}to{opacity:1}}
+    .loader-bar-wrap{width:200px;height:2px;background:var(--border);border-radius:2px;overflow:hidden;}
+    .loader-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;animation:loadBar 1s ease forwards 0.1s;}
+    @keyframes loadBar{to{width:100%;}}
+
     .dot{position:fixed;border-radius:50%;animation:floatDot linear infinite;pointer-events:none;z-index:0;}
     @keyframes floatDot{0%{transform:translateY(100vh);opacity:0}10%{opacity:0.4}90%{opacity:0.2}100%{transform:translateY(-10vh);opacity:0}}
   </style>
 </head>
 <body>
+
+<div id="page-loader">
+  <div class="loader-logo">404</div>
+  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+</div>
+
+<div id="progress-bar"></div>
 <canvas id="bg-canvas"></canvas>
 <div class="grid-overlay"></div>
 <div id="dots"></div>
 <div class="wrapper">
 
-  <nav>
+  <nav id="main-nav">
     <a href="index.html" class="nav-brand">
       <div class="nav-logo-box">404</div>
       <div class="nav-name"><span>404</span> Team Not Found</div>
@@ -166,7 +185,6 @@
   <div class="erd-outer">
     <div class="erd-canvas" id="erd" style="width:1360px;height:1050px;">
 
-      <!-- SVG for relationship lines -->
       <svg id="rel-svg" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <marker id="arrow-n" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
@@ -176,19 +194,16 @@
             <line x1="0" y1="0" x2="0" y2="6" stroke="#10b981" stroke-width="2" opacity="0.8"/>
           </marker>
         </defs>
-        <!-- lines drawn by JS -->
       </svg>
 
-      <!-- ══ GROUP LABELS ══ -->
+      <!-- GROUP LABELS -->
       <div class="grp-label" style="top:18px;left:20px;">▸ CATALOG &amp; INVENTORY</div>
-      <div class="grp-label" style="top:370px;left:20px;">▸ SUPPLIERS &amp; PURCHASING</div>
-      <div class="grp-label" style="top:660px;left:20px;">▸ CUSTOMERS &amp; SALES</div>
-      <div class="grp-label" style="top:18px;left:960px;">▸ EMPLOYEES</div>
-
-      <!-- ══ CATALOG & INVENTORY ══ -->
+      <div class="grp-label" style="top:370px;left:20px;animation-delay:0.7s">▸ SUPPLIERS &amp; PURCHASING</div>
+      <div class="grp-label" style="top:660px;left:20px;animation-delay:0.8s">▸ CUSTOMERS &amp; SALES</div>
+      <div class="grp-label" style="top:18px;left:960px;animation-delay:0.9s">▸ EMPLOYEES</div>
 
       <!-- CATEGORIES -->
-      <div class="tbl" id="t-categories" style="left:20px;top:50px;width:210px;">
+      <div class="tbl" id="t-categories" style="left:20px;top:50px;width:210px;animation-delay:0.3s">
         <div class="th"><span class="th-icon">🗂️</span><span class="th-name">CATEGORIES</span></div>
         <div class="tr"><span class="kb kb-pk">PK</span><span class="cn">category_id</span><span class="ct c-int">INT</span></div>
         <div class="tr"><span class="kb kb-em"></span><span class="cn">name</span><span class="ct c-varchar">VARCHAR</span></div>
@@ -198,7 +213,7 @@
       </div>
 
       <!-- PRODUCTS -->
-      <div class="tbl" id="t-products" style="left:310px;top:50px;width:210px;">
+      <div class="tbl" id="t-products" style="left:310px;top:50px;width:210px;animation-delay:0.4s">
         <div class="th"><span class="th-icon">📦</span><span class="th-name">PRODUCTS</span></div>
         <div class="tr"><span class="kb kb-pk">PK</span><span class="cn">product_id</span><span class="ct c-int">INT</span></div>
         <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">category_id</span><span class="ct c-int">INT</span></div>
@@ -213,7 +228,7 @@
       </div>
 
       <!-- INVENTORY -->
-      <div class="tbl" id="t-inventory" style="left:600px;top:50px;width:210px;">
+      <div class="tbl" id="t-inventory" style="left:600px;top:50px;width:210px;animation-delay:0.5s">
         <div class="th"><span class="th-icon">📊</span><span class="th-name">INVENTORY</span></div>
         <div class="tr"><span class="kb kb-pk">PK</span><span class="cn">inventory_id</span><span class="ct c-int">INT</span></div>
         <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">product_id</span><span class="ct c-int">INT</span></div>
@@ -224,10 +239,8 @@
         <div class="tr"><span class="kb kb-em"></span><span class="cn">location</span><span class="ct c-varchar">VARCHAR</span></div>
       </div>
 
-      <!-- ══ SUPPLIERS & PURCHASING ══ -->
-
       <!-- SUPPLIERS -->
-      <div class="tbl" id="t-suppliers" style="left:20px;top:400px;width:210px;">
+      <div class="tbl" id="t-suppliers" style="left:20px;top:400px;width:210px;animation-delay:0.55s">
         <div class="th"><span class="th-icon">🏭</span><span class="th-name">SUPPLIERS</span></div>
         <div class="tr"><span class="kb kb-pk">PK</span><span class="cn">supplier_id</span><span class="ct c-int">INT</span></div>
         <div class="tr"><span class="kb kb-em"></span><span class="cn">company_name</span><span class="ct c-varchar">VARCHAR</span></div>
@@ -239,7 +252,7 @@
       </div>
 
       <!-- PURCHASE_ORDERS -->
-      <div class="tbl" id="t-po" style="left:310px;top:400px;width:210px;">
+      <div class="tbl" id="t-po" style="left:310px;top:400px;width:210px;animation-delay:0.6s">
         <div class="th"><span class="th-icon">📋</span><span class="th-name">PURCHASE_ORDERS</span></div>
         <div class="tr"><span class="kb kb-pk">PK</span><span class="cn">po_id</span><span class="ct c-int">INT</span></div>
         <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">supplier_id</span><span class="ct c-int">INT</span></div>
@@ -252,7 +265,7 @@
       </div>
 
       <!-- PURCHASE_ITEMS -->
-      <div class="tbl" id="t-pi" style="left:600px;top:400px;width:210px;">
+      <div class="tbl" id="t-pi" style="left:600px;top:400px;width:210px;animation-delay:0.65s">
         <div class="th"><span class="th-icon">🔗</span><span class="th-name">PURCHASE_ITEMS</span></div>
         <div class="tr"><span class="kb kb-pk">PK</span><span class="cn">purchase_item_id</span><span class="ct c-int">INT</span></div>
         <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">po_id</span><span class="ct c-int">INT</span></div>
@@ -263,10 +276,8 @@
         <div class="tr"><span class="kb kb-em"></span><span class="cn">received_qty</span><span class="ct c-int">INT</span></div>
       </div>
 
-      <!-- ══ CUSTOMERS & SALES ══ -->
-
       <!-- CUSTOMERS -->
-      <div class="tbl" id="t-customers" style="left:20px;top:690px;width:210px;">
+      <div class="tbl" id="t-customers" style="left:20px;top:690px;width:210px;animation-delay:0.7s">
         <div class="th"><span class="th-icon">👤</span><span class="th-name">CUSTOMERS</span></div>
         <div class="tr"><span class="kb kb-pk">PK</span><span class="cn">customer_id</span><span class="ct c-int">INT</span></div>
         <div class="tr"><span class="kb kb-uk">UK</span><span class="cn">email</span><span class="ct c-varchar">VARCHAR</span></div>
@@ -278,7 +289,7 @@
       </div>
 
       <!-- LOYALTY -->
-      <div class="tbl" id="t-loyalty" style="left:310px;top:690px;width:210px;">
+      <div class="tbl" id="t-loyalty" style="left:310px;top:690px;width:210px;animation-delay:0.75s">
         <div class="th"><span class="th-icon">⭐</span><span class="th-name">LOYALTY</span></div>
         <div class="tr"><span class="kb kb-pk">PK</span><span class="cn">loyalty_id</span><span class="ct c-int">INT</span></div>
         <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">customer_id</span><span class="ct c-int">INT</span></div>
@@ -290,7 +301,7 @@
       </div>
 
       <!-- SALES -->
-      <div class="tbl" id="t-sales" style="left:600px;top:660px;width:220px;">
+      <div class="tbl" id="t-sales" style="left:600px;top:660px;width:220px;animation-delay:0.8s">
         <div class="th"><span class="th-icon">🧾</span><span class="th-name">SALES</span></div>
         <div class="tr"><span class="kb kb-pk">PK</span><span class="cn">sale_id</span><span class="ct c-int">INT</span></div>
         <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">customer_id</span><span class="ct c-int">INT</span></div>
@@ -307,7 +318,7 @@
       </div>
 
       <!-- SALE_ITEMS -->
-      <div class="tbl" id="t-si" style="left:900px;top:690px;width:210px;">
+      <div class="tbl" id="t-si" style="left:900px;top:690px;width:210px;animation-delay:0.85s">
         <div class="th"><span class="th-icon">🔗</span><span class="th-name">SALE_ITEMS</span></div>
         <div class="tr"><span class="kb kb-pk">PK</span><span class="cn">sale_item_id</span><span class="ct c-int">INT</span></div>
         <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">sale_id</span><span class="ct c-int">INT</span></div>
@@ -318,8 +329,8 @@
         <div class="tr"><span class="kb kb-em"></span><span class="cn">subtotal</span><span class="ct c-decimal">DECIMAL</span></div>
       </div>
 
-      <!-- ══ EMPLOYEES ══ -->
-      <div class="tbl" id="t-employees" style="left:960px;top:50px;width:210px;">
+      <!-- EMPLOYEES -->
+      <div class="tbl" id="t-employees" style="left:960px;top:50px;width:210px;animation-delay:0.45s">
         <div class="th"><span class="th-icon">👨‍💼</span><span class="th-name">EMPLOYEES</span></div>
         <div class="tr"><span class="kb kb-pk">PK</span><span class="cn">employee_id</span><span class="ct c-int">INT</span></div>
         <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">manager_id</span><span class="ct c-int">INT</span></div>
@@ -344,124 +355,81 @@
 </div>
 
 <script>
-/* ── background canvas ── */
+/* Background canvas */
 const canvas=document.getElementById('bg-canvas');const ctx=canvas.getContext('2d');let W,H,nodes=[];
 function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
 function initNodes(){nodes=[];const n=Math.floor(W*H/24000);for(let i=0;i<n;i++)nodes.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.8+0.8,c:['#00d4ff','#7c3aed','#10b981'][Math.floor(Math.random()*3)]});}
 function drawBg(){ctx.clearRect(0,0,W,H);nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1;});nodes.forEach(n=>{ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle=n.c;ctx.fill();});requestAnimationFrame(drawBg);}
 resize();initNodes();drawBg();window.addEventListener('resize',()=>{resize();initNodes();});
 
-/* ── floating dots ── */
+/* Floating dots */
 const dc=document.getElementById('dots');
 ['#00d4ff','#7c3aed','#10b981'].forEach(c=>{for(let i=0;i<4;i++){const d=document.createElement('div');d.className='dot';const s=Math.random()*3+2;d.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}vw;background:${c};animation-duration:${Math.random()*14+10}s;animation-delay:${Math.random()*8}s;`;dc.appendChild(d);}});
 
-/* ── Draw SVG relationship lines ── */
+/* Scroll progress */
+const pb=document.getElementById('progress-bar');
+window.addEventListener('scroll',()=>{const t=window.scrollY,dh=document.documentElement.scrollHeight-window.innerHeight;pb.style.width=(dh>0?(t/dh)*100:0)+'%';});
+
+/* Nav shrink */
+const nav=document.getElementById('main-nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>60));
+
+/* SVG Relationship lines */
 function getCenter(el){
-  const erd = document.getElementById('erd');
-  const eb  = erd.getBoundingClientRect();
-  const b   = el.getBoundingClientRect();
-  return {
-    x: b.left - eb.left + b.width/2,
-    y: b.top  - eb.top  + b.height/2,
-    top:    b.top  - eb.top,
-    bottom: b.top  - eb.top + b.height,
-    left:   b.left - eb.left,
-    right:  b.left - eb.left + b.width,
-    midY:   b.top  - eb.top  + b.height/2,
-    midX:   b.left - eb.left + b.width/2,
-  };
+  const erd=document.getElementById('erd');
+  const eb=erd.getBoundingClientRect();
+  const b=el.getBoundingClientRect();
+  return{x:b.left-eb.left+b.width/2,y:b.top-eb.top+b.height/2,top:b.top-eb.top,bottom:b.top-eb.top+b.height,left:b.left-eb.left,right:b.left-eb.left+b.width,midY:b.top-eb.top+b.height/2,midX:b.left-eb.left+b.width/2};
 }
 
-function makePath(svg, x1,y1, x2,y2, color, label, dashed){
-  const mid = (x1+x2)/2;
-  const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-  const d = `M ${x1} ${y1} C ${mid} ${y1}, ${mid} ${y2}, ${x2} ${y2}`;
-  path.setAttribute('d', d);
-  path.setAttribute('stroke', color);
-  path.setAttribute('stroke-width','1.5');
-  path.setAttribute('fill','none');
-  path.setAttribute('opacity','0.65');
-  if(dashed) path.setAttribute('stroke-dasharray','5,4');
+function makePath(svg,x1,y1,x2,y2,color,label,dashed){
+  const mid=(x1+x2)/2;
+  const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+  const d=`M ${x1} ${y1} C ${mid} ${y1}, ${mid} ${y2}, ${x2} ${y2}`;
+  path.setAttribute('d',d);path.setAttribute('stroke',color);path.setAttribute('stroke-width','1.5');path.setAttribute('fill','none');path.setAttribute('opacity','0.65');
+  if(dashed)path.setAttribute('stroke-dasharray','5,4');
   path.setAttribute('marker-end','url(#arrow-n)');
+
+  // Animate path drawing
+  const len=path.getTotalLength?.()||300;
+  path.style.strokeDasharray=len;path.style.strokeDashoffset=len;
+  path.style.transition='stroke-dashoffset 0.8s ease';
   svg.appendChild(path);
+  requestAnimationFrame(()=>{path.style.strokeDashoffset=dashed?'none':'0';});
 
   if(label){
-    // label at midpoint
-    const mx = mid, my = (y1+y2)/2;
-    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
-    rect.setAttribute('x', mx-16); rect.setAttribute('y', my-9);
-    rect.setAttribute('width','32'); rect.setAttribute('height','16');
-    rect.setAttribute('rx','3'); rect.setAttribute('fill','#0f1628');
-    rect.setAttribute('stroke', color); rect.setAttribute('stroke-width','0.8');
+    const mx=mid,my=(y1+y2)/2;
+    const rect=document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x',mx-16);rect.setAttribute('y',my-9);rect.setAttribute('width','32');rect.setAttribute('height','16');rect.setAttribute('rx','3');rect.setAttribute('fill','#0f1628');rect.setAttribute('stroke',color);rect.setAttribute('stroke-width','0.8');
     svg.appendChild(rect);
-    const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
-    txt.setAttribute('x', mx); txt.setAttribute('y', my+4);
-    txt.setAttribute('text-anchor','middle');
-    txt.setAttribute('font-family','Space Mono, monospace');
-    txt.setAttribute('font-size','8');
-    txt.setAttribute('fill', color);
-    txt.textContent = label;
-    svg.appendChild(txt);
+    const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x',mx);txt.setAttribute('y',my+4);txt.setAttribute('text-anchor','middle');txt.setAttribute('font-family','Space Mono, monospace');txt.setAttribute('font-size','8');txt.setAttribute('fill',color);
+    txt.textContent=label;svg.appendChild(txt);
   }
 }
 
 function drawRelations(){
-  const svg = document.getElementById('rel-svg');
-  while(svg.children.length > 1) svg.removeChild(svg.lastChild);
-
-  const C = id => getCenter(document.getElementById(id));
-
-  const blue   = '#00d4ff';
-  const green  = '#10b981';
-  const purple = '#7c3aed';
-  const yellow = '#f59e0b';
-
-  const cat  = C('t-categories');
-  const prod = C('t-products');
-  const inv  = C('t-inventory');
-  const sup  = C('t-suppliers');
-  const po   = C('t-po');
-  const pi   = C('t-pi');
-  const cust = C('t-customers');
-  const loy  = C('t-loyalty');
-  const sal  = C('t-sales');
-  const si   = C('t-si');
-  const emp  = C('t-employees');
-
-  // 1. CATEGORIES ──1:N──> PRODUCTS
-  makePath(svg, cat.right, cat.midY, prod.left, prod.midY, blue, '1:N');
-
-  // 2. PRODUCTS ──1:N──> INVENTORY
-  makePath(svg, prod.right, prod.midY, inv.left, inv.midY, blue, '1:N');
-
-  // 3. PRODUCTS ──1:N──> PURCHASE_ORDERS  (vertical down)
-  makePath(svg, prod.midX, prod.bottom, po.midX, po.top, purple, '1:N');
-
-  // 4. SUPPLIERS ──1:N──> PURCHASE_ITEMS  (from right side of suppliers down-right)
-  makePath(svg, sup.right, sup.midY, pi.left, pi.midY, yellow, '1:N');
-
-  // 5. PURCHASE_ORDERS ──1:N──> PURCHASE_ITEMS
-  makePath(svg, po.right, po.midY, pi.left, pi.midY-12, blue, '1:N');
-
-  // 6. PURCHASE_ITEMS ──1:N──> EMPLOYEES  (vertical down)
-  makePath(svg, pi.midX, pi.bottom, emp.midX, emp.top, purple, '1:N');
-
-  // 7. CUSTOMERS ──1:N──> LOYALTY
-  makePath(svg, cust.right, cust.midY, loy.left, loy.midY, green, '1:N');
-
-  // 8. CUSTOMERS ──1:N──> SALES
-  makePath(svg, cust.right, cust.midY+18, sal.left, sal.midY, blue, '1:N');
-
-  // 9. EMPLOYEES ──1:N──> SALES
-  makePath(svg, emp.right, emp.midY, sal.left, sal.midY+18, yellow, '1:N');
-
-  // 10. SALES ──1:N──> SALE_ITEMS
-  makePath(svg, sal.right, sal.midY, si.left, si.midY, blue, '1:N');
+  const svg=document.getElementById('rel-svg');
+  while(svg.children.length>1)svg.removeChild(svg.lastChild);
+  const C=id=>getCenter(document.getElementById(id));
+  const blue='#00d4ff',green='#10b981',purple='#7c3aed',yellow='#f59e0b';
+  const cat=C('t-categories'),prod=C('t-products'),inv=C('t-inventory');
+  const sup=C('t-suppliers'),po=C('t-po'),pi=C('t-pi');
+  const cust=C('t-customers'),loy=C('t-loyalty'),sal=C('t-sales'),si=C('t-si'),emp=C('t-employees');
+  makePath(svg,cat.right,cat.midY,prod.left,prod.midY,blue,'1:N');
+  makePath(svg,prod.right,prod.midY,inv.left,inv.midY,blue,'1:N');
+  makePath(svg,prod.midX,prod.bottom,po.midX,po.top,purple,'1:N');
+  makePath(svg,sup.right,sup.midY,pi.left,pi.midY,yellow,'1:N');
+  makePath(svg,po.right,po.midY,pi.left,pi.midY-12,blue,'1:N');
+  makePath(svg,pi.midX,pi.bottom,emp.midX,emp.top,purple,'1:N');
+  makePath(svg,cust.right,cust.midY,loy.left,loy.midY,green,'1:N');
+  makePath(svg,cust.right,cust.midY+18,sal.left,sal.midY,blue,'1:N');
+  makePath(svg,emp.right,emp.midY,sal.left,sal.midY+18,yellow,'1:N');
+  makePath(svg,sal.right,sal.midY,si.left,si.midY,blue,'1:N');
 }
 
-// Run after layout
-window.addEventListener('load', ()=>{ setTimeout(drawRelations, 100); });
-window.addEventListener('resize', ()=>{ setTimeout(drawRelations, 100); });
+window.addEventListener('load',()=>{setTimeout(drawRelations,300);});
+window.addEventListener('resize',()=>{setTimeout(drawRelations,100);});
 </script>
 </body>
 </html>
