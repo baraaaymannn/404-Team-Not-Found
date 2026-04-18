@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Database Schema Explained — 404 Team Not Found</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --bg:#0a0e1a;--card:#141c35;--surface:#0f1628;
+      --accent:#00d4ff;--accent2:#7c3aed;--accent3:#10b981;--accent4:#f59e0b;
+      --text:#e2e8f0;--muted:#64748b;--border:#1e2d4a;
+    }
+    html{scroll-behavior:smooth;}
+    body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;}
+    #bg-canvas{position:fixed;inset:0;z-index:0;opacity:0.25;pointer-events:none;}
+    .grid-overlay{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:60px 60px;}
+    .wrapper{position:relative;z-index:1;}
+
+    /* NAV */
+    nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2.5rem;border-bottom:1px solid var(--border);backdrop-filter:blur(20px);background:rgba(10,14,26,0.92);position:sticky;top:0;z-index:100;}
+    .nav-brand{display:flex;align-items:center;gap:0.8rem;text-decoration:none;color:inherit;}
+    .nav-logo-box{width:34px;height:34px;border-radius:6px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.58rem;font-weight:700;color:#000;}
+    .nav-name{font-weight:800;font-size:0.95rem;}
+    .nav-name span{color:var(--accent);}
+    .nav-back{display:flex;align-items:center;gap:0.5rem;font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--muted);text-decoration:none;border:1px solid var(--border);padding:0.4rem 1rem;border-radius:4px;transition:color 0.2s,border-color 0.2s;}
+    .nav-back:hover{color:var(--accent2);border-color:var(--accent2);}
+
+    /* HERO */
+    .hero{padding:3.5rem 2rem 2.5rem;max-width:1000px;margin:0 auto;}
+    .breadcrumb{font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--muted);margin-bottom:1.2rem;display:flex;align-items:center;gap:0.5rem;opacity:0;animation:fadeUp 0.6s ease forwards 0.1s;}
+    .breadcrumb a{color:var(--accent);text-decoration:none;}
+    .hero-top{display:flex;align-items:center;gap:1.5rem;margin-bottom:1rem;opacity:0;animation:fadeUp 0.6s ease forwards 0.2s;}
+    .hero-icon{width:64px;height:64px;border-radius:12px;background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.25);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;}
+    .hero-code{font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--accent2);letter-spacing:0.15em;margin-bottom:0.3rem;}
+    .hero-title{font-size:clamp(1.8rem,4vw,3rem);font-weight:800;letter-spacing:-0.02em;line-height:1.1;}
+    .hero-title span{background:linear-gradient(135deg,var(--accent2),#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .hero-sub{font-size:0.95rem;color:var(--muted);line-height:1.7;max-width:700px;opacity:0;animation:fadeUp 0.6s ease forwards 0.3s;margin-bottom:1.5rem;}
+
+    .version-row{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;opacity:0;animation:fadeUp 0.6s ease forwards 0.4s;margin-bottom:2rem;}
+    .v-badge{font-family:'Space Mono',monospace;font-size:0.68rem;padding:0.3rem 0.8rem;border-radius:3px;border:1px solid;letter-spacing:0.08em;}
+    .v-purple{color:var(--accent2);border-color:rgba(124,58,237,0.3);background:rgba(124,58,237,0.07);}
+    .v-blue  {color:var(--accent); border-color:rgba(0,212,255,0.3);  background:rgba(0,212,255,0.07);}
+    .v-green {color:var(--accent3);border-color:rgba(16,185,129,0.3); background:rgba(16,185,129,0.07);}
+
+    .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);}
+
+    /* CONTENT */
+    .content{padding:3rem 2rem;max-width:1000px;margin:0 auto;}
+
+    /* INTRO CARDS */
+    .intro-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.2rem;margin-bottom:3rem;}
+    .intro-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;transition:transform 0.25s,border-color 0.25s;}
+    .intro-card:hover{transform:translateY(-4px);}
+    .ic-blue  {border-top:3px solid var(--accent);}  .ic-blue:hover{border-color:var(--accent);}
+    .ic-purple{border-top:3px solid var(--accent2);} .ic-purple:hover{border-color:var(--accent2);}
+    .ic-green {border-top:3px solid var(--accent3);} .ic-green:hover{border-color:var(--accent3);}
+    .ic-yellow{border-top:3px solid var(--accent4);} .ic-yellow:hover{border-color:var(--accent4);}
+    .ic-icon{font-size:1.8rem;margin-bottom:0.8rem;}
+    .ic-en{font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);letter-spacing:0.1em;margin-bottom:0.3rem;}
+    .ic-title-ar{font-size:1.05rem;font-weight:800;margin-bottom:0.5rem;direction:rtl;}
+    .ic-blue   .ic-title-ar{color:var(--accent);}
+    .ic-purple .ic-title-ar{color:var(--accent2);}
+    .ic-green  .ic-title-ar{color:var(--accent3);}
+    .ic-yellow .ic-title-ar{color:var(--accent4);}
+    .ic-desc-ar{font-size:0.82rem;color:var(--muted);line-height:1.6;direction:rtl;margin-bottom:0.5rem;}
+    .ic-desc-en{font-size:0.78rem;color:var(--muted);line-height:1.5;font-style:italic;border-top:1px solid var(--border);padding-top:0.5rem;margin-top:0.3rem;}
+
+    /* SYSTEM INFO */
+    .system-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2rem;margin-bottom:3rem;position:relative;overflow:hidden;}
+    .system-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3));}
+    .sb-label{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--accent3);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.8rem;}
+    .sb-title-ar{font-size:1rem;font-weight:800;direction:rtl;margin-bottom:0.4rem;}
+    .sb-desc-ar{font-size:0.88rem;color:var(--muted);line-height:1.7;direction:rtl;margin-bottom:0.5rem;}
+    .sb-desc-en{font-size:0.83rem;color:var(--muted);line-height:1.6;font-style:italic;}
+    .sb-chips{display:flex;gap:0.6rem;flex-wrap:wrap;margin-top:1rem;}
+    .sb-chip{font-family:'Space Mono',monospace;font-size:0.65rem;padding:0.25rem 0.7rem;border-radius:3px;border:1px solid;letter-spacing:0.06em;}
+    .sb-chip.blue  {color:var(--accent); border-color:rgba(0,212,255,0.3); background:rgba(0,212,255,0.07);}
+    .sb-chip.purple{color:var(--accent2);border-color:rgba(124,58,237,0.3);background:rgba(124,58,237,0.07);}
+    .sb-chip.green {color:var(--accent3);border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.07);}
+    .sb-chip.yellow{color:var(--accent4);border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.07);}
+
+    /* SECTION HEADER */
+    .sec-head{display:flex;align-items:center;gap:0.8rem;margin-bottom:1.5rem;}
+    .sec-line{height:1px;flex:1;background:linear-gradient(90deg,var(--border),transparent);}
+    .sec-label{font-family:'Space Mono',monospace;font-size:0.7rem;letter-spacing:0.18em;text-transform:uppercase;white-space:nowrap;}
+    .sl-blue  {color:var(--accent);}
+    .sl-purple{color:var(--accent2);}
+
+    /* NEXT PAGE BTN */
+    .next-btn{display:inline-flex;align-items:center;gap:0.6rem;background:linear-gradient(135deg,var(--accent2),#5b21b6);color:#fff;font-weight:700;font-family:'Syne',sans-serif;font-size:0.9rem;padding:0.85rem 2rem;border-radius:6px;text-decoration:none;transition:transform 0.2s,box-shadow 0.2s;margin-top:2rem;}
+    .next-btn:hover{transform:translateY(-3px);box-shadow:0 10px 25px rgba(124,58,237,0.35);}
+
+    footer{border-top:1px solid var(--border);padding:1.5rem 2.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-top:2rem;}
+    .footer-brand{font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--accent);}
+    .footer-txt{font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--muted);}
+
+    .reveal{opacity:0;transform:translateY(20px);transition:opacity 0.6s ease,transform 0.6s ease;}
+    .reveal.visible{opacity:1;transform:none;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+
+    .dot{position:fixed;border-radius:50%;animation:floatDot linear infinite;pointer-events:none;z-index:0;}
+    @keyframes floatDot{0%{transform:translateY(100vh);opacity:0}10%{opacity:0.5}90%{opacity:0.3}100%{transform:translateY(-10vh);opacity:0}}
+
+    @media(max-width:600px){nav{padding:0.9rem 1.2rem;}.hero-top{flex-direction:column;}.intro-grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<div class="grid-overlay"></div>
+<div id="dots"></div>
+<div class="wrapper">
+
+  <nav>
+    <a href="index.html" class="nav-brand">
+      <div class="nav-logo-box">404</div>
+      <div class="nav-name"><span>404</span> Team Not Found</div>
+    </a>
+    <a href="database.html" class="nav-back">← Back</a>
+  </nav>
+
+  <div class="hero">
+    <div class="breadcrumb">
+      <a href="index.html">Home</a> / <a href="database.html">Database Systems</a> / Explanation
+    </div>
+    <div class="hero-top">
+      <div class="hero-icon">📖</div>
+      <div>
+        <div class="hero-code">CS · 301 — DATABASE SCHEMA · EXPLAINED</div>
+        <h1 class="hero-title">Database Schema <span>Explained</span></h1>
+      </div>
+    </div>
+    <p class="hero-sub">A full walkthrough of the retail database schema — explaining every concept from Schema and Entity to Attributes and Relationships, in both Arabic and English.</p>
+    <div class="version-row">
+      <span class="v-badge v-purple">RETAIL SYSTEM</span>
+      <span class="v-badge v-blue">ERD · 11 ENTITIES</span>
+      <span class="v-badge v-green">AR / EN</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="content">
+
+    <!-- SYSTEM BOX -->
+    <div class="system-box reveal">
+      <div class="sb-label">// System Overview</div>
+      <div class="sb-title-ar">🌟 النظام اللي بندرسه</div>
+      <div class="sb-desc-ar">نظام متجر للبيع بالتجزئة (Retail System) — بيشمل المنتجات، الموردين، العملاء، الموظفين، والمبيعات.</div>
+      <div class="sb-desc-en">A retail store management system covering products, suppliers, customers, employees & sales transactions.</div>
+      <div class="sb-chips">
+        <span class="sb-chip blue">PRODUCTS</span>
+        <span class="sb-chip purple">SUPPLIERS</span>
+        <span class="sb-chip green">CUSTOMERS</span>
+        <span class="sb-chip yellow">EMPLOYEES</span>
+        <span class="sb-chip blue">SALES</span>
+        <span class="sb-chip purple">INVENTORY</span>
+      </div>
+    </div>
+
+    <!-- INTRO CONCEPTS -->
+    <div class="sec-head reveal">
+      <div class="sec-label sl-blue">// Core Concepts</div>
+      <div class="sec-line"></div>
+    </div>
+    <p style="color:var(--muted);font-size:0.88rem;margin-bottom:1.5rem;" class="reveal">المفاهيم الأساسية اللي بيتبنى عليها الـ Database Schema</p>
+
+    <div class="intro-grid">
+
+      <div class="intro-card ic-blue reveal">
+        <div class="ic-icon">🗺️</div>
+        <div class="ic-en">CONCEPT 01 / 04</div>
+        <div class="ic-title-ar">الـ Schema</div>
+        <div class="ic-desc-ar">هو المخطط اللي بيوضح إزاي الجداول (Tables) متربطة ببعض في قاعدة البيانات.</div>
+        <div class="ic-desc-en">Blueprint of how tables are structured & related.</div>
+      </div>
+
+      <div class="intro-card ic-purple reveal" style="transition-delay:.1s">
+        <div class="ic-icon">📦</div>
+        <div class="ic-en">CONCEPT 02 / 04</div>
+        <div class="ic-title-ar">الـ Entity</div>
+        <div class="ic-desc-ar">كل جدول بيمثل كيان (Entity) — زي CUSTOMERS أو PRODUCTS.</div>
+        <div class="ic-desc-en">Each table = one entity in the real world.</div>
+      </div>
+
+      <div class="intro-card ic-green reveal" style="transition-delay:.2s">
+        <div class="ic-icon">🔑</div>
+        <div class="ic-en">CONCEPT 03 / 04</div>
+        <div class="ic-title-ar">الـ Attribute</div>
+        <div class="ic-desc-ar">كل عمود في الجدول بيمثل خاصية (Attribute) — زي الاسم أو السعر.</div>
+        <div class="ic-desc-en">Columns = attributes / properties of the entity.</div>
+      </div>
+
+      <div class="intro-card ic-yellow reveal" style="transition-delay:.3s">
+        <div class="ic-icon">🔗</div>
+        <div class="ic-en">CONCEPT 04 / 04</div>
+        <div class="ic-title-ar">الـ Relationship</div>
+        <div class="ic-desc-ar">العلاقة بين الجداول بتتعمل عن طريق المفاتيح الأجنبية (Foreign Keys).</div>
+        <div class="ic-desc-en">Tables connect via Foreign Keys (FK).</div>
+      </div>
+
+    </div>
+
+    <!-- VIEW MODEL BTN -->
+    <div class="sec-head reveal" style="margin-top:2rem;">
+      <div class="sec-label sl-purple">// Full ERD</div>
+      <div class="sec-line"></div>
+    </div>
+    <p style="color:var(--muted);font-size:0.88rem;margin-bottom:1.5rem;" class="reveal">
+      عايز تشوف الـ Schema كامل مع كل الجداول والحقول؟ افتح الـ ERD Model.
+    </p>
+    <a href="db-model.html" class="next-btn reveal">
+      🗃️ View Full ERD Model →
+    </a>
+
+  </div>
+
+  <div class="divider"></div>
+
+  <footer>
+    <div class="footer-brand">404 TEAM NOT FOUND</div>
+    <div class="footer-txt">DATABASE SCHEMA · EXPLAINED · FCI TANTA</div>
+    <div class="footer-txt">2025</div>
+  </footer>
+</div>
+
+<script>
+  const canvas=document.getElementById('bg-canvas');
+  const ctx=canvas.getContext('2d');
+  let W,H,nodes=[];
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+  function initNodes(){nodes=[];const n=Math.floor(W*H/22000);for(let i=0;i<n;i++)nodes.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*2+1,c:['#00d4ff','#7c3aed','#10b981'][Math.floor(Math.random()*3)]});}
+  function draw(){ctx.clearRect(0,0,W,H);nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1;});for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.hypot(dx,dy);if(d<120){ctx.beginPath();ctx.strokeStyle=`rgba(0,212,255,${(1-d/120)*.18})`;ctx.lineWidth=1;ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke();}}nodes.forEach(n=>{ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle=n.c;ctx.fill();});requestAnimationFrame(draw);}
+  resize();initNodes();draw();
+  window.addEventListener('resize',()=>{resize();initNodes();});
+
+  const dc=document.getElementById('dots');
+  ['#00d4ff','#7c3aed','#10b981'].forEach(c=>{for(let i=0;i<4;i++){const d=document.createElement('div');d.className='dot';const s=Math.random()*3+2;d.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}vw;background:${c};animation-duration:${Math.random()*14+10}s;animation-delay:${Math.random()*8}s;`;dc.appendChild(d);}});
+
+  const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}}),{threshold:.08});
+  document.querySelectorAll('.reveal').forEach(r=>obs.observe(r));
+</script>
+</body>
+</html>

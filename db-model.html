@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Database Schema ERD — 404 Team Not Found</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --bg:#0a0e1a;--card:#141c35;--surface:#0f1628;
+      --accent:#00d4ff;--accent2:#7c3aed;--accent3:#10b981;--accent4:#f59e0b;
+      --text:#e2e8f0;--muted:#64748b;--border:#1e2d4a;
+    }
+    html{scroll-behavior:smooth;}
+    body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;}
+    #bg-canvas{position:fixed;inset:0;z-index:0;opacity:0.2;pointer-events:none;}
+    .grid-overlay{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:60px 60px;}
+    .wrapper{position:relative;z-index:1;}
+
+    /* NAV */
+    nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2.5rem;border-bottom:1px solid var(--border);backdrop-filter:blur(20px);background:rgba(10,14,26,0.92);position:sticky;top:0;z-index:100;}
+    .nav-brand{display:flex;align-items:center;gap:0.8rem;text-decoration:none;color:inherit;}
+    .nav-logo-box{width:34px;height:34px;border-radius:6px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.58rem;font-weight:700;color:#000;}
+    .nav-name{font-weight:800;font-size:0.95rem;}
+    .nav-name span{color:var(--accent);}
+    .nav-back{display:flex;align-items:center;gap:0.5rem;font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--muted);text-decoration:none;border:1px solid var(--border);padding:0.4rem 1rem;border-radius:4px;transition:color 0.2s,border-color 0.2s;}
+    .nav-back:hover{color:var(--accent);border-color:var(--accent);}
+
+    /* HERO */
+    .hero{padding:2.5rem 2rem 1.5rem;max-width:1500px;margin:0 auto;}
+    .breadcrumb{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;opacity:0;animation:fadeUp 0.6s ease forwards 0.1s;}
+    .breadcrumb a{color:var(--accent);text-decoration:none;}
+    .hero-top{display:flex;align-items:center;gap:1.2rem;margin-bottom:1rem;opacity:0;animation:fadeUp 0.6s ease forwards 0.2s;}
+    .hero-icon{width:54px;height:54px;border-radius:10px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;}
+    .hero-code{font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--accent);letter-spacing:0.12em;margin-bottom:0.2rem;}
+    .hero-title{font-size:clamp(1.5rem,3vw,2.4rem);font-weight:800;letter-spacing:-0.02em;}
+    .hero-title span{background:linear-gradient(135deg,var(--accent),#0099cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .version-row{display:flex;align-items:center;gap:0.7rem;flex-wrap:wrap;opacity:0;animation:fadeUp 0.6s ease forwards 0.3s;margin-bottom:1.5rem;}
+    .v-badge{font-family:'Space Mono',monospace;font-size:0.62rem;padding:0.22rem 0.65rem;border-radius:3px;border:1px solid;letter-spacing:0.07em;}
+    .v-blue  {color:var(--accent); border-color:rgba(0,212,255,0.3);  background:rgba(0,212,255,0.07);}
+    .v-green {color:var(--accent3);border-color:rgba(16,185,129,0.3); background:rgba(16,185,129,0.07);}
+    .v-purple{color:var(--accent2);border-color:rgba(124,58,237,0.3); background:rgba(124,58,237,0.07);}
+
+    .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);}
+
+    /* LEGEND */
+    .legend-bar{padding:1rem 2rem;max-width:1500px;margin:0 auto;display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center;font-family:'Space Mono',monospace;font-size:0.62rem;}
+    .l-item{display:flex;align-items:center;gap:0.35rem;}
+    .lk{padding:0.08rem 0.35rem;border-radius:2px;font-size:0.54rem;font-weight:700;}
+    .lk-pk{background:rgba(0,212,255,0.15);color:#00d4ff;border:1px solid rgba(0,212,255,0.3);}
+    .lk-fk{background:rgba(124,58,237,0.15);color:#7c3aed;border:1px solid rgba(124,58,237,0.3);}
+    .lk-uk{background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3);}
+    .l-sep{width:1px;height:14px;background:var(--border);}
+    .c-int    {color:#e2e8f0;}
+    .c-varchar{color:#f59e0b;}
+    .c-decimal{color:#10b981;}
+    .c-date   {color:#f472b6;}
+    .c-enum   {color:#a78bfa;}
+    .c-bool   {color:#fb923c;}
+    .c-text   {color:#94a3b8;}
+    .l-rel{display:flex;align-items:center;gap:0.4rem;color:var(--muted);}
+    .l-rel-line{display:flex;align-items:center;gap:2px;}
+    .l-1{color:#10b981;font-weight:700;}
+    .l-dash{width:22px;height:1.5px;background:var(--accent);opacity:0.6;}
+    .l-n{color:var(--accent);font-weight:700;font-size:0.85rem;}
+
+    /* ── ERD CANVAS AREA ── */
+    .erd-outer{padding:1.5rem 1rem 3rem;overflow-x:auto;}
+    .erd-canvas{position:relative;margin:0 auto;}
+
+    /* SVG overlay for lines */
+    #rel-svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:2;}
+
+    /* GROUP LABELS */
+    .grp-label{position:absolute;font-family:'Space Mono',monospace;font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:0.5rem;}
+    .grp-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(0,212,255,0.3),transparent);width:80px;display:inline-block;}
+
+    /* TABLE CARDS */
+    .tbl{position:absolute;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:box-shadow 0.25s,border-color 0.25s;z-index:3;}
+    .tbl:hover{border-color:rgba(0,212,255,0.4);box-shadow:0 8px 30px rgba(0,212,255,0.12);}
+
+    .th{padding:0.55rem 0.85rem;display:flex;align-items:center;gap:0.45rem;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.25);}
+    .th-icon{font-size:0.85rem;}
+    .th-name{font-family:'Space Mono',monospace;font-size:0.65rem;font-weight:700;letter-spacing:0.06em;color:var(--accent);}
+
+    .tr{display:flex;align-items:center;gap:0.35rem;padding:0.22rem 0.85rem;transition:background 0.15s;}
+    .tr:hover{background:rgba(255,255,255,0.03);}
+    .kb{font-family:'Space Mono',monospace;font-size:0.5rem;padding:0.07rem 0.3rem;border-radius:2px;font-weight:700;flex-shrink:0;min-width:20px;text-align:center;}
+    .kb-pk{background:rgba(0,212,255,0.15);color:#00d4ff;}
+    .kb-fk{background:rgba(124,58,237,0.15);color:#7c3aed;}
+    .kb-uk{background:rgba(16,185,129,0.15);color:#10b981;}
+    .kb-em{min-width:20px;}
+    .cn{font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--text);flex:1;white-space:nowrap;}
+    .ct{font-family:'Space Mono',monospace;font-size:0.54rem;flex-shrink:0;}
+
+    footer{border-top:1px solid var(--border);padding:1.5rem 2.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+    .footer-brand{font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--accent);}
+    .footer-txt{font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--muted);}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+    .dot{position:fixed;border-radius:50%;animation:floatDot linear infinite;pointer-events:none;z-index:0;}
+    @keyframes floatDot{0%{transform:translateY(100vh);opacity:0}10%{opacity:0.4}90%{opacity:0.2}100%{transform:translateY(-10vh);opacity:0}}
+  </style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<div class="grid-overlay"></div>
+<div id="dots"></div>
+<div class="wrapper">
+
+  <nav>
+    <a href="index.html" class="nav-brand">
+      <div class="nav-logo-box">404</div>
+      <div class="nav-name"><span>404</span> Team Not Found</div>
+    </a>
+    <a href="database.html" class="nav-back">← Back</a>
+  </nav>
+
+  <div class="hero">
+    <div class="breadcrumb">
+      <a href="index.html">Home</a> / <a href="database.html">Database Systems</a> / ERD Model
+    </div>
+    <div class="hero-top">
+      <div class="hero-icon">🗃️</div>
+      <div>
+        <div class="hero-code">CS · 301 — DATABASE SCHEMA · ERD · v1.0</div>
+        <h1 class="hero-title">Relational <span>Database Model</span></h1>
+      </div>
+    </div>
+    <div class="version-row">
+      <span class="v-badge v-blue">RETAIL SYSTEM · v1.0</span>
+      <span class="v-badge v-green">11 ENTITIES</span>
+      <span class="v-badge v-purple">1:N RELATIONSHIPS</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- LEGEND -->
+  <div class="legend-bar">
+    <div class="l-item"><span class="lk lk-pk">PK</span> Primary Key</div>
+    <div class="l-item"><span class="lk lk-fk">FK</span> Foreign Key</div>
+    <div class="l-item"><span class="lk lk-uk">UK</span> Unique Key</div>
+    <div class="l-sep"></div>
+    <div class="l-item"><span class="c-int">INT</span></div>
+    <div class="l-item"><span class="c-varchar">VARCHAR</span></div>
+    <div class="l-item"><span class="c-decimal">DECIMAL</span></div>
+    <div class="l-item"><span class="c-date">DATE</span></div>
+    <div class="l-item"><span class="c-enum">ENUM</span></div>
+    <div class="l-item"><span class="c-bool">BOOL</span></div>
+    <div class="l-sep"></div>
+    <div class="l-rel">
+      <div class="l-rel-line">
+        <span class="l-1">1</span>
+        <div class="l-dash"></div>
+        <span class="l-n">N</span>
+      </div>
+      Relationship
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ERD DIAGRAM -->
+  <div class="erd-outer">
+    <div class="erd-canvas" id="erd" style="width:1360px;height:1050px;">
+
+      <!-- SVG for relationship lines -->
+      <svg id="rel-svg" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrow-n" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#00d4ff" opacity="0.8"/>
+          </marker>
+          <marker id="arrow-1" markerWidth="8" markerHeight="8" refX="2" refY="3" orient="auto">
+            <line x1="0" y1="0" x2="0" y2="6" stroke="#10b981" stroke-width="2" opacity="0.8"/>
+          </marker>
+        </defs>
+        <!-- lines drawn by JS -->
+      </svg>
+
+      <!-- ══ GROUP LABELS ══ -->
+      <div class="grp-label" style="top:18px;left:20px;">▸ CATALOG &amp; INVENTORY</div>
+      <div class="grp-label" style="top:370px;left:20px;">▸ SUPPLIERS &amp; PURCHASING</div>
+      <div class="grp-label" style="top:660px;left:20px;">▸ CUSTOMERS &amp; SALES</div>
+      <div class="grp-label" style="top:18px;left:960px;">▸ EMPLOYEES</div>
+
+      <!-- ══ CATALOG & INVENTORY ══ -->
+
+      <!-- CATEGORIES -->
+      <div class="tbl" id="t-categories" style="left:20px;top:50px;width:210px;">
+        <div class="th"><span class="th-icon">🗂️</span><span class="th-name">CATEGORIES</span></div>
+        <div class="tr"><span class="kb kb-pk">PK</span><span class="cn">category_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">name</span><span class="ct c-varchar">VARCHAR</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">description</span><span class="ct c-text">TEXT</span></div>
+        <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">parent_category_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">is_active</span><span class="ct c-bool">BOOL</span></div>
+      </div>
+
+      <!-- PRODUCTS -->
+      <div class="tbl" id="t-products" style="left:310px;top:50px;width:210px;">
+        <div class="th"><span class="th-icon">📦</span><span class="th-name">PRODUCTS</span></div>
+        <div class="tr"><span class="kb kb-pk">PK</span><span class="cn">product_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">category_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">supplier_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-uk">UK</span><span class="cn">sku</span><span class="ct c-varchar">VARCHAR</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">name</span><span class="ct c-varchar">VARCHAR</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">description</span><span class="ct c-text">TEXT</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">unit_price</span><span class="ct c-decimal">DECIMAL</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">cost_price</span><span class="ct c-decimal">DECIMAL</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">is_active</span><span class="ct c-bool">BOOL</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">created_at</span><span class="ct c-date">DATE</span></div>
+      </div>
+
+      <!-- INVENTORY -->
+      <div class="tbl" id="t-inventory" style="left:600px;top:50px;width:210px;">
+        <div class="th"><span class="th-icon">📊</span><span class="th-name">INVENTORY</span></div>
+        <div class="tr"><span class="kb kb-pk">PK</span><span class="cn">inventory_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">product_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">quantity_on_hand</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">reorder_level</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">reorder_qty</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">last_updated</span><span class="ct c-date">DATE</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">location</span><span class="ct c-varchar">VARCHAR</span></div>
+      </div>
+
+      <!-- ══ SUPPLIERS & PURCHASING ══ -->
+
+      <!-- SUPPLIERS -->
+      <div class="tbl" id="t-suppliers" style="left:20px;top:400px;width:210px;">
+        <div class="th"><span class="th-icon">🏭</span><span class="th-name">SUPPLIERS</span></div>
+        <div class="tr"><span class="kb kb-pk">PK</span><span class="cn">supplier_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">company_name</span><span class="ct c-varchar">VARCHAR</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">contact_name</span><span class="ct c-varchar">VARCHAR</span></div>
+        <div class="tr"><span class="kb kb-uk">UK</span><span class="cn">email</span><span class="ct c-varchar">VARCHAR</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">phone</span><span class="ct c-varchar">VARCHAR</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">address</span><span class="ct c-text">TEXT</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">is_active</span><span class="ct c-bool">BOOL</span></div>
+      </div>
+
+      <!-- PURCHASE_ORDERS -->
+      <div class="tbl" id="t-po" style="left:310px;top:400px;width:210px;">
+        <div class="th"><span class="th-icon">📋</span><span class="th-name">PURCHASE_ORDERS</span></div>
+        <div class="tr"><span class="kb kb-pk">PK</span><span class="cn">po_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">supplier_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">employee_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-uk">UK</span><span class="cn">po_number</span><span class="ct c-varchar">VARCHAR</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">order_date</span><span class="ct c-date">DATE</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">expected_date</span><span class="ct c-date">DATE</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">status</span><span class="ct c-enum">ENUM</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">total_amount</span><span class="ct c-decimal">DECIMAL</span></div>
+      </div>
+
+      <!-- PURCHASE_ITEMS -->
+      <div class="tbl" id="t-pi" style="left:600px;top:400px;width:210px;">
+        <div class="th"><span class="th-icon">🔗</span><span class="th-name">PURCHASE_ITEMS</span></div>
+        <div class="tr"><span class="kb kb-pk">PK</span><span class="cn">purchase_item_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">po_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">product_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">quantity</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">unit_cost</span><span class="ct c-decimal">DECIMAL</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">subtotal</span><span class="ct c-decimal">DECIMAL</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">received_qty</span><span class="ct c-int">INT</span></div>
+      </div>
+
+      <!-- ══ CUSTOMERS & SALES ══ -->
+
+      <!-- CUSTOMERS -->
+      <div class="tbl" id="t-customers" style="left:20px;top:690px;width:210px;">
+        <div class="th"><span class="th-icon">👤</span><span class="th-name">CUSTOMERS</span></div>
+        <div class="tr"><span class="kb kb-pk">PK</span><span class="cn">customer_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-uk">UK</span><span class="cn">email</span><span class="ct c-varchar">VARCHAR</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">first_name</span><span class="ct c-varchar">VARCHAR</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">last_name</span><span class="ct c-varchar">VARCHAR</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">phone</span><span class="ct c-varchar">VARCHAR</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">address</span><span class="ct c-text">TEXT</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">created_at</span><span class="ct c-date">DATE</span></div>
+      </div>
+
+      <!-- LOYALTY -->
+      <div class="tbl" id="t-loyalty" style="left:310px;top:690px;width:210px;">
+        <div class="th"><span class="th-icon">⭐</span><span class="th-name">LOYALTY</span></div>
+        <div class="tr"><span class="kb kb-pk">PK</span><span class="cn">loyalty_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">customer_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-uk">UK</span><span class="cn">card_number</span><span class="ct c-varchar">VARCHAR</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">points_balance</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">tier</span><span class="ct c-enum">ENUM</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">enrolled_at</span><span class="ct c-date">DATE</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">expiry_date</span><span class="ct c-date">DATE</span></div>
+      </div>
+
+      <!-- SALES -->
+      <div class="tbl" id="t-sales" style="left:600px;top:660px;width:220px;">
+        <div class="th"><span class="th-icon">🧾</span><span class="th-name">SALES</span></div>
+        <div class="tr"><span class="kb kb-pk">PK</span><span class="cn">sale_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">customer_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">employee_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">loyalty_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-uk">UK</span><span class="cn">receipt_number</span><span class="ct c-varchar">VARCHAR</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">sale_date</span><span class="ct c-date">DATE</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">subtotal</span><span class="ct c-decimal">DECIMAL</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">discount_amount</span><span class="ct c-decimal">DECIMAL</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">tax_amount</span><span class="ct c-decimal">DECIMAL</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">total_amount</span><span class="ct c-decimal">DECIMAL</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">payment_method</span><span class="ct c-enum">ENUM</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">points_earned</span><span class="ct c-int">INT</span></div>
+      </div>
+
+      <!-- SALE_ITEMS -->
+      <div class="tbl" id="t-si" style="left:900px;top:690px;width:210px;">
+        <div class="th"><span class="th-icon">🔗</span><span class="th-name">SALE_ITEMS</span></div>
+        <div class="tr"><span class="kb kb-pk">PK</span><span class="cn">sale_item_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">sale_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">product_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">quantity</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">unit_price</span><span class="ct c-decimal">DECIMAL</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">discount_pct</span><span class="ct c-decimal">DECIMAL</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">subtotal</span><span class="ct c-decimal">DECIMAL</span></div>
+      </div>
+
+      <!-- ══ EMPLOYEES ══ -->
+      <div class="tbl" id="t-employees" style="left:960px;top:50px;width:210px;">
+        <div class="th"><span class="th-icon">👨‍💼</span><span class="th-name">EMPLOYEES</span></div>
+        <div class="tr"><span class="kb kb-pk">PK</span><span class="cn">employee_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-fk">FK</span><span class="cn">manager_id</span><span class="ct c-int">INT</span></div>
+        <div class="tr"><span class="kb kb-uk">UK</span><span class="cn">email</span><span class="ct c-varchar">VARCHAR</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">first_name</span><span class="ct c-varchar">VARCHAR</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">last_name</span><span class="ct c-varchar">VARCHAR</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">role</span><span class="ct c-enum">ENUM</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">hire_date</span><span class="ct c-date">DATE</span></div>
+        <div class="tr"><span class="kb kb-em"></span><span class="cn">is_active</span><span class="ct c-bool">BOOL</span></div>
+      </div>
+
+    </div><!-- erd-canvas -->
+  </div><!-- erd-outer -->
+
+  <div class="divider"></div>
+
+  <footer>
+    <div class="footer-brand">404 TEAM NOT FOUND</div>
+    <div class="footer-txt">DATABASE SCHEMA ERD · 11 ENTITIES · v1.0</div>
+    <div class="footer-txt">FCI TANTA · 2025</div>
+  </footer>
+</div>
+
+<script>
+/* ── background canvas ── */
+const canvas=document.getElementById('bg-canvas');const ctx=canvas.getContext('2d');let W,H,nodes=[];
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+function initNodes(){nodes=[];const n=Math.floor(W*H/24000);for(let i=0;i<n;i++)nodes.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.8+0.8,c:['#00d4ff','#7c3aed','#10b981'][Math.floor(Math.random()*3)]});}
+function drawBg(){ctx.clearRect(0,0,W,H);nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1;});nodes.forEach(n=>{ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle=n.c;ctx.fill();});requestAnimationFrame(drawBg);}
+resize();initNodes();drawBg();window.addEventListener('resize',()=>{resize();initNodes();});
+
+/* ── floating dots ── */
+const dc=document.getElementById('dots');
+['#00d4ff','#7c3aed','#10b981'].forEach(c=>{for(let i=0;i<4;i++){const d=document.createElement('div');d.className='dot';const s=Math.random()*3+2;d.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}vw;background:${c};animation-duration:${Math.random()*14+10}s;animation-delay:${Math.random()*8}s;`;dc.appendChild(d);}});
+
+/* ── Draw SVG relationship lines ── */
+function getCenter(el){
+  const erd = document.getElementById('erd');
+  const eb  = erd.getBoundingClientRect();
+  const b   = el.getBoundingClientRect();
+  return {
+    x: b.left - eb.left + b.width/2,
+    y: b.top  - eb.top  + b.height/2,
+    top:    b.top  - eb.top,
+    bottom: b.top  - eb.top + b.height,
+    left:   b.left - eb.left,
+    right:  b.left - eb.left + b.width,
+    midY:   b.top  - eb.top  + b.height/2,
+    midX:   b.left - eb.left + b.width/2,
+  };
+}
+
+function makePath(svg, x1,y1, x2,y2, color, label, dashed){
+  const mid = (x1+x2)/2;
+  const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+  const d = `M ${x1} ${y1} C ${mid} ${y1}, ${mid} ${y2}, ${x2} ${y2}`;
+  path.setAttribute('d', d);
+  path.setAttribute('stroke', color);
+  path.setAttribute('stroke-width','1.5');
+  path.setAttribute('fill','none');
+  path.setAttribute('opacity','0.65');
+  if(dashed) path.setAttribute('stroke-dasharray','5,4');
+  path.setAttribute('marker-end','url(#arrow-n)');
+  svg.appendChild(path);
+
+  if(label){
+    // label at midpoint
+    const mx = mid, my = (y1+y2)/2;
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x', mx-16); rect.setAttribute('y', my-9);
+    rect.setAttribute('width','32'); rect.setAttribute('height','16');
+    rect.setAttribute('rx','3'); rect.setAttribute('fill','#0f1628');
+    rect.setAttribute('stroke', color); rect.setAttribute('stroke-width','0.8');
+    svg.appendChild(rect);
+    const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x', mx); txt.setAttribute('y', my+4);
+    txt.setAttribute('text-anchor','middle');
+    txt.setAttribute('font-family','Space Mono, monospace');
+    txt.setAttribute('font-size','8');
+    txt.setAttribute('fill', color);
+    txt.textContent = label;
+    svg.appendChild(txt);
+  }
+}
+
+function drawRelations(){
+  const svg = document.getElementById('rel-svg');
+  // clear old lines
+  while(svg.children.length > 1) svg.removeChild(svg.lastChild);
+
+  const C = id => getCenter(document.getElementById(id));
+
+  const blue   = '#00d4ff';
+  const green  = '#10b981';
+  const purple = '#7c3aed';
+  const yellow = '#f59e0b';
+
+  // CATEGORIES → PRODUCTS  (1:N)
+  const cat = C('t-categories'), prod = C('t-products');
+  makePath(svg, cat.right, cat.midY, prod.left, prod.midY, blue, '1:N');
+
+  // PRODUCTS → INVENTORY  (1:N)
+  const inv = C('t-inventory');
+  makePath(svg, prod.right, prod.midY, inv.left, inv.midY, blue, '1:N');
+
+  // SUPPLIERS → PURCHASE_ORDERS  (1:N)
+  const sup = C('t-suppliers'), po = C('t-po');
+  makePath(svg, sup.right, sup.midY, po.left, po.midY, yellow, '1:N');
+
+  // PURCHASE_ORDERS → PURCHASE_ITEMS  (1:N)
+  const pi = C('t-pi');
+  makePath(svg, po.right, po.midY, pi.left, pi.midY, yellow, '1:N');
+
+  // PRODUCTS → PURCHASE_ITEMS  (1:N) vertical
+  makePath(svg, prod.midX, prod.bottom, pi.midX, pi.top, purple, '1:N');
+
+  // CUSTOMERS → LOYALTY  (1:1)
+  const cust = C('t-customers'), loy = C('t-loyalty');
+  makePath(svg, cust.right, cust.midY, loy.left, loy.midY, green, '1:1');
+
+  // CUSTOMERS → SALES  (1:N)
+  const sal = C('t-sales');
+  makePath(svg, cust.right, cust.midY+20, sal.left, sal.midY, blue, '1:N');
+
+  // LOYALTY → SALES  (1:N)
+  makePath(svg, loy.right, loy.midY, sal.left, sal.midY+20, green, '1:N');
+
+  // SALES → SALE_ITEMS  (1:N)
+  const si = C('t-si');
+  makePath(svg, sal.right, sal.midY, si.left, si.midY, blue, '1:N');
+
+  // PRODUCTS → SALE_ITEMS  (1:N) — long vertical
+  makePath(svg, prod.midX+30, prod.bottom, si.midX, si.top, purple, '1:N');
+
+  // EMPLOYEES → SALES  (1:N)
+  const emp = C('t-employees');
+  makePath(svg, emp.bottom - (emp.bottom-emp.top)/2 + emp.top, emp.bottom,
+               sal.midX, sal.top, yellow, '1:N');
+  // simpler: right side of employees down to sales top
+  makePath(svg, emp.right, emp.midY+30, sal.midX+20, sal.top, yellow, '1:N');
+
+  // EMPLOYEES → PURCHASE_ORDERS  (1:N)
+  makePath(svg, emp.left, emp.midY, po.right+40, po.midY-20, yellow, '1:N', true);
+
+  // SUPPLIERS → PRODUCTS  (1:N) vertical dashed
+  makePath(svg, sup.midX, sup.top, prod.midX-20, prod.bottom, purple, '1:N', true);
+}
+
+// Run after layout
+window.addEventListener('load', ()=>{ setTimeout(drawRelations, 100); });
+window.addEventListener('resize', ()=>{ setTimeout(drawRelations, 100); });
+</script>
+</body>
+</html>

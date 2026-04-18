@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Database Systems — 404 Team Not Found</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--bg:#0a0e1a;--card:#141c35;--surface:#0f1628;--accent:#00d4ff;--accent2:#7c3aed;--accent3:#10b981;--text:#e2e8f0;--muted:#64748b;--border:#1e2d4a;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;}
+    #bg-canvas{position:fixed;inset:0;z-index:0;opacity:0.3;pointer-events:none;}
+    .grid-overlay{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:60px 60px;}
+    .wrapper{position:relative;z-index:1;}
+
+    nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2.5rem;border-bottom:1px solid var(--border);backdrop-filter:blur(20px);background:rgba(10,14,26,0.9);position:sticky;top:0;z-index:100;}
+    .nav-brand{display:flex;align-items:center;gap:0.8rem;text-decoration:none;color:inherit;}
+    .nav-logo-box{width:36px;height:36px;border-radius:6px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.6rem;font-weight:700;color:#000;}
+    .nav-name{font-weight:800;font-size:1rem;}
+    .nav-name span{color:var(--accent);}
+    .nav-back{display:flex;align-items:center;gap:0.5rem;font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);text-decoration:none;border:1px solid var(--border);padding:0.4rem 1rem;border-radius:4px;transition:color 0.2s,border-color 0.2s;}
+    .nav-back:hover{color:var(--accent);border-color:var(--accent);}
+
+    .hero{padding:4rem 2rem 3rem;max-width:1100px;margin:0 auto;}
+    .breadcrumb{font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--muted);margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem;opacity:0;animation:fadeUp 0.6s ease forwards 0.1s;}
+    .breadcrumb a{color:var(--accent);text-decoration:none;}
+    .hero-top{display:flex;align-items:flex-start;gap:1.5rem;margin-bottom:1.5rem;opacity:0;animation:fadeUp 0.6s ease forwards 0.2s;}
+    .hero-icon{width:72px;height:72px;border-radius:14px;background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.2);display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;}
+    .hero-code{font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--accent);letter-spacing:0.15em;margin-bottom:0.4rem;}
+    .hero-title{font-size:clamp(2rem,5vw,3.5rem);font-weight:800;letter-spacing:-0.02em;line-height:1.1;}
+    .hero-title span{background:linear-gradient(135deg,var(--accent),#0099cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .hero-desc{font-size:1rem;color:var(--muted);max-width:600px;line-height:1.7;opacity:0;animation:fadeUp 0.6s ease forwards 0.35s;margin-bottom:2rem;}
+    .hero-stats{display:flex;gap:1.5rem;flex-wrap:wrap;opacity:0;animation:fadeUp 0.6s ease forwards 0.45s;}
+    .h-stat{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1rem 1.5rem;}
+    .h-stat-num{font-family:'Space Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--accent);}
+    .h-stat-label{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:0.2rem;}
+
+    .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);}
+
+    .projects-section{padding:4rem 2rem;max-width:1100px;margin:0 auto;}
+    .sec-label{font-family:'Space Mono',monospace;font-size:0.7rem;letter-spacing:0.2em;color:var(--accent);text-transform:uppercase;margin-bottom:0.5rem;}
+    .sec-title{font-size:clamp(1.5rem,3vw,2rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:2rem;}
+
+    .projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.5rem;}
+
+    .proj-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;transition:transform 0.3s,box-shadow 0.3s,border-color 0.3s;position:relative;text-decoration:none;color:inherit;}
+    .proj-card:hover{transform:translateY(-6px);border-color:rgba(0,212,255,0.35);box-shadow:0 20px 50px rgba(0,212,255,0.12);}
+    .scan{position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scan 3s ease-in-out infinite;opacity:0.5;}
+    @keyframes scan{0%{top:0;opacity:0}5%{opacity:1}95%{opacity:1}100%{top:100%;opacity:0}}
+
+    .proj-card-top{padding:1.8rem 1.8rem 1.2rem;flex:1;}
+    .proj-num{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;margin-bottom:1rem;}
+    .proj-icon{font-size:2.5rem;margin-bottom:0.8rem;}
+    .proj-title{font-size:1.2rem;font-weight:800;margin-bottom:0.6rem;color:var(--accent);}
+    .proj-desc{font-size:0.85rem;color:var(--muted);line-height:1.65;}
+
+    .proj-tags{display:flex;gap:0.5rem;flex-wrap:wrap;padding:0 1.8rem 1.2rem;}
+    .tag{font-family:'Space Mono',monospace;font-size:0.62rem;padding:0.2rem 0.6rem;border-radius:2px;border:1px solid rgba(0,212,255,0.25);color:var(--accent);background:rgba(0,212,255,0.06);letter-spacing:0.06em;}
+
+    .proj-card-bottom{padding:1.2rem 1.8rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:1rem;background:rgba(0,0,0,0.15);}
+    .proj-meta{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);}
+    .proj-btn{display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg,var(--accent),#0099cc);color:#000;font-weight:700;font-family:'Syne',sans-serif;font-size:0.82rem;padding:0.65rem 1.4rem;border-radius:5px;text-decoration:none;transition:transform 0.2s,box-shadow 0.2s;white-space:nowrap;}
+    .proj-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,212,255,0.3);}
+    .proj-btn .arrow{transition:transform 0.2s;}
+    .proj-btn:hover .arrow{transform:translateX(3px);}
+
+    .team-section{padding:3rem 2rem 4rem;max-width:1100px;margin:0 auto;}
+    .team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:1rem;margin-top:2rem;}
+    .team-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.5rem 1rem;text-align:center;transition:transform 0.3s;position:relative;overflow:hidden;}
+    .team-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transform:scaleX(0);transition:transform 0.3s;}
+    .team-card:hover{transform:translateY(-4px);}
+    .team-card:hover::after{transform:scaleX(1);}
+    .avatar{width:56px;height:56px;border-radius:50%;margin:0 auto 0.8rem;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800;}
+    .av1{background:linear-gradient(135deg,#00d4ff,#0099cc);color:#000}
+    .av2{background:linear-gradient(135deg,#7c3aed,#5b21b6);color:#fff}
+    .av3{background:linear-gradient(135deg,#10b981,#059669);color:#000}
+    .av4{background:linear-gradient(135deg,#f59e0b,#d97706);color:#000}
+    .av5{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff}
+    .team-name{font-size:0.83rem;font-weight:700;}
+    .team-role{font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--muted);margin-top:0.25rem;letter-spacing:0.08em;}
+
+    footer{border-top:1px solid var(--border);padding:1.8rem 2.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+    .footer-brand{font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--accent);}
+    .footer-txt{font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--muted);}
+
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease;}
+    .reveal.visible{opacity:1;transform:none;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+    .dot{position:fixed;border-radius:50%;animation:floatDot linear infinite;pointer-events:none;z-index:0;}
+    @keyframes floatDot{0%{transform:translateY(100vh);opacity:0}10%{opacity:0.5}90%{opacity:0.3}100%{transform:translateY(-10vh);opacity:0}}
+    @media(max-width:600px){nav{padding:0.9rem 1.2rem;}.hero-top{flex-direction:column;}.projects-grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<div class="grid-overlay"></div>
+<div id="dots"></div>
+<div class="wrapper">
+
+  <nav>
+    <a href="index.html" class="nav-brand">
+      <div class="nav-logo-box">404</div>
+      <div class="nav-name"><span>404</span> Team Not Found</div>
+    </a>
+    <a href="index.html" class="nav-back">← Dashboard</a>
+  </nav>
+
+  <div class="hero">
+    <div class="breadcrumb"><a href="index.html">Home</a> / Database Systems</div>
+    <div class="hero-top">
+      <div class="hero-icon">🗃️</div>
+      <div>
+        <div class="hero-code">CS · 301 — DATABASE SYSTEMS</div>
+        <h1 class="hero-title">Database <span>Systems</span></h1>
+      </div>
+    </div>
+    <p class="hero-desc">Projects covering relational database design, ER modeling, SQL schema, normalization, and real-world data system implementation.</p>
+    <div class="hero-stats">
+      <div class="h-stat"><div class="h-stat-num">2</div><div class="h-stat-label">Projects</div></div>
+      <div class="h-stat"><div class="h-stat-num">11</div><div class="h-stat-label">Entities</div></div>
+      <div class="h-stat"><div class="h-stat-num">5</div><div class="h-stat-label">Members</div></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="projects-section">
+    <p class="sec-label reveal">// Projects</p>
+    <h2 class="sec-title reveal">Database Systems Projects</h2>
+
+    <div class="projects-grid">
+
+      <a href="db-model.html" class="proj-card reveal">
+        <div class="scan"></div>
+        <div class="proj-card-top">
+          <div class="proj-num">PROJECT 01 / 02</div>
+          <div class="proj-icon">🗃️</div>
+          <div class="proj-title">Mini Market — Relational DB Model</div>
+          <div class="proj-desc">A complete relational database schema for a real-world retail system. Covers 11 entities, all relationships, primary & foreign keys, and a full ERD.</div>
+        </div>
+        <div class="proj-tags">
+          <span class="tag">SQL</span><span class="tag">ER DIAGRAM</span><span class="tag">11 ENTITIES</span><span class="tag">NORMALIZATION</span>
+        </div>
+        <div class="proj-card-bottom">
+          <div class="proj-meta">Retail System · ERD</div>
+          <span class="proj-btn">Open Project <span class="arrow">→</span></span>
+        </div>
+      </a>
+
+      <a href="db-explain.html" class="proj-card reveal" style="transition-delay:.15s">
+        <div class="scan" style="animation-delay:1.5s"></div>
+        <div class="proj-card-top">
+          <div class="proj-num">PROJECT 02 / 02</div>
+          <div class="proj-icon">📖</div>
+          <div class="proj-title">Mini Market — Full Explanation</div>
+          <div class="proj-desc">A detailed walkthrough explaining every design decision — Schema, Entity, Attribute, and Relationship — with both Arabic and English descriptions.</div>
+        </div>
+        <div class="proj-tags">
+          <span class="tag">SCHEMA</span><span class="tag">DATA MODELING</span><span class="tag">AR / EN</span>
+        </div>
+        <div class="proj-card-bottom">
+          <div class="proj-meta">Database Schema · Explained</div>
+          <span class="proj-btn">Open Project <span class="arrow">→</span></span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="team-section">
+    <p class="sec-label reveal">// The Team</p>
+    <h2 class="sec-title reveal">Built By</h2>
+    <div class="team-grid">
+      <div class="team-card reveal"><div class="avatar av1">BA</div><div class="team-name">Baraa Ayman</div><div class="team-role">DB ENGINEER</div></div>
+      <div class="team-card reveal" style="transition-delay:.1s"><div class="avatar av2">MM</div><div class="team-name">Mostafa Mohamed</div><div class="team-role">DATA MODELER</div></div>
+      <div class="team-card reveal" style="transition-delay:.2s"><div class="avatar av3">AB</div><div class="team-name">Adham Bassam</div><div class="team-role">SCHEMA DESIGNER</div></div>
+      <div class="team-card reveal" style="transition-delay:.3s"><div class="avatar av4">AE</div><div class="team-name">Ahmed El Badry</div><div class="team-role">SQL DEVELOPER</div></div>
+      <div class="team-card reveal" style="transition-delay:.4s"><div class="avatar av5">AM</div><div class="team-name">Abdelrhman Mohamed</div><div class="team-role">SYSTEM ANALYST</div></div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-brand">404 TEAM NOT FOUND</div>
+    <div class="footer-txt">DATABASE SYSTEMS · FCI TANTA · 2025</div>
+    <div class="footer-txt">BUILT WITH ❤️ BY 5 STUDENTS</div>
+  </footer>
+</div>
+
+<script>
+  const canvas=document.getElementById('bg-canvas');const ctx=canvas.getContext('2d');let W,H,nodes=[];
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+  function initNodes(){nodes=[];const n=Math.floor(W*H/20000);for(let i=0;i<n;i++)nodes.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,r:Math.random()*2+1,c:['#00d4ff','#7c3aed','#10b981'][Math.floor(Math.random()*3)]});}
+  function draw(){ctx.clearRect(0,0,W,H);nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1;});for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.hypot(dx,dy);if(d<130){ctx.beginPath();ctx.strokeStyle=`rgba(0,212,255,${(1-d/130)*.2})`;ctx.lineWidth=1;ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke();}}nodes.forEach(n=>{ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle=n.c;ctx.fill();});requestAnimationFrame(draw);}
+  resize();initNodes();draw();window.addEventListener('resize',()=>{resize();initNodes();});
+  const dc=document.getElementById('dots');['#00d4ff','#7c3aed','#10b981'].forEach(c=>{for(let i=0;i<5;i++){const d=document.createElement('div');d.className='dot';const s=Math.random()*4+2;d.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}vw;background:${c};animation-duration:${Math.random()*14+10}s;animation-delay:${Math.random()*8}s;`;dc.appendChild(d);}});
+  const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}}),{threshold:.1});
+  document.querySelectorAll('.reveal').forEach(r=>obs.observe(r));
+</script>
+</body>
+</html>
