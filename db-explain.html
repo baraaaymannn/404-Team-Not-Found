@@ -1,883 +1,278 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>شرح Database Schema</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Database Schema Explained — 404 Team Not Found</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--bg:#0a0e1a;--card:#141c35;--surface:#0f1628;--accent:#00d4ff;--accent2:#7c3aed;--accent3:#10b981;--accent4:#f59e0b;--text:#e2e8f0;--muted:#64748b;--border:#1e2d4a;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;}
 
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    #progress-bar{position:fixed;top:0;left:0;height:2px;width:0%;background:linear-gradient(90deg,var(--accent2),var(--accent),var(--accent3));z-index:9999;box-shadow:0 0 8px var(--accent2);}
 
-:root {
-  --bg: #0b0f1a;
-  --card: #111827;
-  --border: #1e2d45;
-  --accent: #3b82f6;
-  --green: #22c55e;
-  --yellow: #f59e0b;
-  --red: #ef4444;
-  --purple: #a855f7;
-  --cyan: #06b6d4;
-  --text: #e2e8f0;
-  --muted: #64748b;
-}
+    #bg-canvas{position:fixed;inset:0;z-index:0;opacity:0.25;pointer-events:none;}
+    .grid-overlay{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:60px 60px;}
+    .wrapper{position:relative;z-index:1;}
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Tajawal', sans-serif;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
+    /* NAV */
+    nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2.5rem;border-bottom:1px solid var(--border);backdrop-filter:blur(20px);background:rgba(10,14,26,0.92);position:sticky;top:0;z-index:100;transition:padding 0.3s,box-shadow 0.3s;}
+    nav.scrolled{padding:0.6rem 2.5rem;box-shadow:0 4px 30px rgba(124,58,237,0.08);border-bottom-color:rgba(124,58,237,0.15);}
+    .nav-brand{display:flex;align-items:center;gap:0.8rem;text-decoration:none;color:inherit;}
+    .nav-logo-box{width:34px;height:34px;border-radius:6px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.58rem;font-weight:700;color:#000;transition:transform 0.3s,box-shadow 0.3s;}
+    .nav-brand:hover .nav-logo-box{transform:rotate(10deg) scale(1.1);box-shadow:0 0 16px rgba(124,58,237,0.4);}
+    .nav-name{font-weight:800;font-size:0.95rem;}
+    .nav-name span{color:var(--accent);}
+    .nav-back{display:flex;align-items:center;gap:0.5rem;font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--muted);text-decoration:none;border:1px solid var(--border);padding:0.4rem 1rem;border-radius:4px;transition:color 0.2s,border-color 0.2s,transform 0.2s;}
+    .nav-back:hover{color:var(--accent2);border-color:var(--accent2);transform:translateX(-3px);}
 
-/* ── PROGRESS BAR ── */
-.progress-bar {
-  position: fixed;
-  top: 0; left: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #3b82f6, #06b6d4);
-  transition: width 0.4s ease;
-  z-index: 999;
-}
+    /* HERO */
+    .hero{padding:3.5rem 2rem 2.5rem;max-width:1000px;margin:0 auto;}
+    .breadcrumb{font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--muted);margin-bottom:1.2rem;display:flex;align-items:center;gap:0.5rem;opacity:0;animation:fadeUp 0.6s ease forwards 0.1s;}
+    .breadcrumb a{color:var(--accent);text-decoration:none;}
+    .hero-top{display:flex;align-items:center;gap:1.5rem;margin-bottom:1rem;opacity:0;animation:fadeUp 0.6s ease forwards 0.25s;}
+    .hero-icon{width:64px;height:64px;border-radius:12px;background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.25);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.3s;}
+    .hero-icon:hover{transform:scale(1.1) rotate(-5deg);box-shadow:0 0 24px rgba(124,58,237,0.35);}
+    .hero-code{font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--accent2);letter-spacing:0.15em;margin-bottom:0.3rem;}
+    .hero-title{font-size:clamp(1.8rem,4vw,3rem);font-weight:800;letter-spacing:-0.02em;line-height:1.1;}
+    .hero-title span{background:linear-gradient(135deg,var(--accent2),#a855f7);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradientShift 4s linear infinite;}
+    @keyframes gradientShift{0%{background-position:0% center}100%{background-position:200% center}}
 
-/* ── HEADER ── */
-.header {
-  background: #0d1117;
-  border-bottom: 1px solid var(--border);
-  padding: 16px 28px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-.header-title {
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: #fff;
-}
-.header-sub {
-  font-size: 0.75rem;
-  color: var(--muted);
-  font-family: 'JetBrains Mono', monospace;
-  direction: ltr;
-}
-.step-counter {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem;
-  color: var(--accent);
-  background: rgba(59,130,246,0.1);
-  border: 1px solid rgba(59,130,246,0.3);
-  padding: 4px 12px;
-  border-radius: 20px;
-}
+    .hero-sub{font-size:0.95rem;color:var(--muted);line-height:1.7;max-width:700px;opacity:0;animation:fadeUp 0.6s ease forwards 0.35s;margin-bottom:1.5rem;}
+    .version-row{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;opacity:0;animation:fadeUp 0.6s ease forwards 0.5s;margin-bottom:2rem;}
+    .v-badge{font-family:'Space Mono',monospace;font-size:0.68rem;padding:0.3rem 0.8rem;border-radius:3px;border:1px solid;letter-spacing:0.08em;}
+    .v-purple{color:var(--accent2);border-color:rgba(124,58,237,0.3);background:rgba(124,58,237,0.07);}
+    .v-blue{color:var(--accent);border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.07);}
+    .v-green{color:var(--accent3);border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.07);}
 
-/* ── SLIDE ── */
-.slides-wrap {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 32px 20px 80px;
-}
+    .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);}
 
-.slide {
-  display: none;
-  animation: fadeUp 0.4s ease;
-}
-.slide.active { display: block; }
+    /* CONTENT */
+    .content{padding:3rem 2rem;max-width:1000px;margin:0 auto;}
 
-@keyframes fadeUp {
-  from { opacity:0; transform: translateY(20px); }
-  to   { opacity:1; transform: translateY(0); }
-}
+    /* INTRO CARDS with 3D tilt + shimmer */
+    .intro-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.2rem;margin-bottom:3rem;}
+    .intro-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.3s;position:relative;overflow:hidden;transform-style:preserve-3d;}
+    .intro-card::after{content:'';position:absolute;top:-50%;left:-60%;width:50%;height:200%;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.05) 50%,transparent 60%);transform:skewX(-15deg);transition:left 0.6s ease;pointer-events:none;}
+    .intro-card:hover::after{left:130%;}
+    .ic-blue  {border-top:3px solid var(--accent);} .ic-blue:hover{border-color:var(--accent);box-shadow:0 12px 32px rgba(0,212,255,0.12);}
+    .ic-purple{border-top:3px solid var(--accent2);}.ic-purple:hover{border-color:var(--accent2);box-shadow:0 12px 32px rgba(124,58,237,0.12);}
+    .ic-green {border-top:3px solid var(--accent3);}.ic-green:hover{border-color:var(--accent3);box-shadow:0 12px 32px rgba(16,185,129,0.12);}
+    .ic-yellow{border-top:3px solid var(--accent4);}.ic-yellow:hover{border-color:var(--accent4);box-shadow:0 12px 32px rgba(245,158,11,0.12);}
+    .ic-icon{font-size:1.8rem;margin-bottom:0.8rem;display:inline-block;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);}
+    .intro-card:hover .ic-icon{transform:scale(1.15) rotate(-5deg);}
+    .ic-en{font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);letter-spacing:0.1em;margin-bottom:0.3rem;}
+    .ic-title-ar{font-size:1.05rem;font-weight:800;margin-bottom:0.5rem;direction:rtl;}
+    .ic-blue .ic-title-ar{color:var(--accent);}
+    .ic-purple .ic-title-ar{color:var(--accent2);}
+    .ic-green .ic-title-ar{color:var(--accent3);}
+    .ic-yellow .ic-title-ar{color:var(--accent4);}
+    .ic-desc-ar{font-size:0.82rem;color:var(--muted);line-height:1.6;direction:rtl;margin-bottom:0.5rem;}
+    .ic-desc-en{font-size:0.78rem;color:var(--muted);line-height:1.5;font-style:italic;border-top:1px solid var(--border);padding-top:0.5rem;margin-top:0.3rem;}
 
-/* ── SLIDE PARTS ── */
-.slide-tag {
-  font-size: 0.62rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--muted);
-  font-family: 'JetBrains Mono', monospace;
-  margin-bottom: 10px;
-}
-.slide-title {
-  font-size: 1.9rem;
-  font-weight: 800;
-  color: #fff;
-  line-height: 1.25;
-  margin-bottom: 6px;
-}
-.slide-subtitle {
-  font-size: 0.95rem;
-  color: var(--muted);
-  margin-bottom: 28px;
-  font-weight: 400;
-}
+    /* SYSTEM BOX */
+    .system-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2rem;margin-bottom:3rem;position:relative;overflow:hidden;transition:border-color 0.3s,box-shadow 0.3s;}
+    .system-box:hover{border-color:rgba(0,212,255,0.2);box-shadow:0 8px 30px rgba(0,212,255,0.07);}
+    .system-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3));}
+    .sb-label{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--accent3);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.8rem;}
+    .sb-title-ar{font-size:1rem;font-weight:800;direction:rtl;margin-bottom:0.4rem;}
+    .sb-desc-ar{font-size:0.88rem;color:var(--muted);line-height:1.7;direction:rtl;margin-bottom:0.5rem;}
+    .sb-desc-en{font-size:0.83rem;color:var(--muted);line-height:1.6;font-style:italic;}
+    .sb-chips{display:flex;gap:0.6rem;flex-wrap:wrap;margin-top:1rem;}
+    .sb-chip{font-family:'Space Mono',monospace;font-size:0.65rem;padding:0.25rem 0.7rem;border-radius:3px;border:1px solid;letter-spacing:0.06em;transition:transform 0.2s,box-shadow 0.2s;}
+    .sb-chip:hover{transform:translateY(-2px);}
+    .sb-chip.blue  {color:var(--accent); border-color:rgba(0,212,255,0.3); background:rgba(0,212,255,0.07);}
+    .sb-chip.purple{color:var(--accent2);border-color:rgba(124,58,237,0.3);background:rgba(124,58,237,0.07);}
+    .sb-chip.green {color:var(--accent3);border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.07);}
+    .sb-chip.yellow{color:var(--accent4);border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.07);}
 
-/* ── CARDS ── */
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 22px 26px;
-  margin-bottom: 16px;
-}
-.card-title {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.card-icon { font-size: 1.1rem; }
+    /* SECTION HEADER */
+    .sec-head{display:flex;align-items:center;gap:0.8rem;margin-bottom:1.5rem;}
+    .sec-line{height:1px;flex:1;background:linear-gradient(90deg,var(--border),transparent);}
+    .sec-label{font-family:'Space Mono',monospace;font-size:0.7rem;letter-spacing:0.18em;text-transform:uppercase;white-space:nowrap;}
+    .sl-blue{color:var(--accent);}
+    .sl-purple{color:var(--accent2);}
 
-/* ── CONCEPT BOXES ── */
-.concept-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-bottom: 16px;
-}
-.concept-box {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 18px;
-  border-top: 3px solid var(--c, #3b82f6);
-}
-.concept-box h3 {
-  font-size: 0.9rem;
-  font-weight: 800;
-  margin-bottom: 6px;
-  color: var(--c, #3b82f6);
-}
-.concept-box p {
-  font-size: 0.82rem;
-  color: #94a3b8;
-  line-height: 1.6;
-}
-.concept-box .en {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
-  color: var(--muted);
-  margin-top: 6px;
-  display: block;
-}
+    /* NEXT BTN */
+    .next-btn{display:inline-flex;align-items:center;gap:0.6rem;background:linear-gradient(135deg,var(--accent2),#5b21b6);color:#fff;font-weight:700;font-family:'Syne',sans-serif;font-size:0.9rem;padding:0.85rem 2rem;border-radius:6px;text-decoration:none;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.3s;margin-top:2rem;}
+    .next-btn:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(124,58,237,0.35);}
+    .next-btn .arrow{transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+    .next-btn:hover .arrow{transform:translateX(5px);}
 
-/* ── TABLE MINI ── */
-.mini-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.78rem;
-  font-family: 'JetBrains Mono', monospace;
-  direction: ltr;
-}
-.mini-table th {
-  background: #0a0e18;
-  color: var(--muted);
-  font-size: 0.6rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 8px 14px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-}
-.mini-table td {
-  padding: 8px 14px;
-  border-bottom: 1px solid #0f1520;
-  color: #c9d1d9;
-}
-.mini-table tr:last-child td { border-bottom: none; }
-.mini-table tr:hover td { background: #1a2235; }
+    footer{border-top:1px solid var(--border);padding:1.5rem 2.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-top:2rem;}
+    .footer-brand{font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--accent);}
+    .footer-txt{font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--muted);}
 
-.badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.52rem;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 3px;
-  letter-spacing: 0.06em;
-}
-.b-pk { background:#0d3a1a; color:#56d364; border:1px solid #1a5e2a; }
-.b-fk { background:#0d2340; color:#79c0ff; border:1px solid #1a3a6e; }
-.b-uk { background:#3a2900; color:#e3b341; border:1px solid #5c4400; }
+    .reveal{opacity:0;transform:translateY(30px);transition:opacity 0.7s cubic-bezier(0.22,1,0.36,1),transform 0.7s cubic-bezier(0.22,1,0.36,1);}
+    .reveal.visible{opacity:1;transform:none;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
 
-.dt-int     { color:#79c0ff; }
-.dt-varchar { color:#c084fc; }
-.dt-decimal { color:#56d364; }
-.dt-date    { color:#f0883e; }
-.dt-bool    { color:#ff7b92; }
-.dt-text    { color:#a5b4fc; }
-.dt-enum    { color:#22d3ee; }
+    /* PAGE LOADER */
+    #page-loader{position:fixed;inset:0;background:var(--bg);z-index:9998;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;animation:loaderFadeOut 0.5s ease forwards 1.2s;}
+    @keyframes loaderFadeOut{to{opacity:0;pointer-events:none;visibility:hidden;}}
+    .loader-logo{font-family:'Space Mono',monospace;font-size:2rem;font-weight:700;color:var(--accent);animation:loaderPulse 0.8s ease-in-out infinite alternate;}
+    @keyframes loaderPulse{from{opacity:0.3}to{opacity:1}}
+    .loader-bar-wrap{width:200px;height:2px;background:var(--border);border-radius:2px;overflow:hidden;}
+    .loader-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:2px;animation:loadBar 1s ease forwards 0.1s;}
+    @keyframes loadBar{to{width:100%;}}
 
-/* ── RELATION DIAGRAM ── */
-.rel-diagram {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  flex-wrap: wrap;
-  padding: 20px;
-  direction: ltr;
-}
-.rel-entity {
-  background: #0d1117;
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 18px;
-  text-align: center;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #e6edf3;
-  min-width: 110px;
-  border-top: 3px solid var(--ec, #3b82f6);
-}
-.rel-arrow {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0 6px;
-  color: var(--muted);
-  font-size: 0.6rem;
-  font-family: 'JetBrains Mono', monospace;
-  gap: 2px;
-}
-.rel-arrow .line { width: 40px; height: 1.5px; background: var(--border); }
-.rel-arrow .label { color: var(--accent); font-size: 0.55rem; }
-
-/* ── Q&A SECTION ── */
-.qa-item {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  margin-bottom: 12px;
-  overflow: hidden;
-  border-right: 3px solid var(--qa-color, #3b82f6);
-}
-.qa-q {
-  padding: 14px 18px;
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: #e2e8f0;
-  cursor: pointer;
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  user-select: none;
-  transition: background 0.15s;
-}
-.qa-q:hover { background: #1a2235; }
-.qa-num {
-  background: rgba(59,130,246,0.15);
-  color: var(--accent);
-  font-size: 0.65rem;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 4px;
-  flex-shrink: 0;
-  font-family: 'JetBrains Mono', monospace;
-  margin-top: 2px;
-}
-.qa-toggle {
-  margin-right: auto;
-  color: var(--muted);
-  font-size: 0.75rem;
-  transition: transform 0.25s;
-  flex-shrink: 0;
-}
-.qa-item.open .qa-toggle { transform: rotate(180deg); }
-.qa-a {
-  display: none;
-  padding: 0 18px 16px 18px;
-  font-size: 0.84rem;
-  color: #94a3b8;
-  line-height: 1.75;
-  border-top: 1px solid var(--border);
-  padding-top: 14px;
-}
-.qa-item.open .qa-a { display: block; }
-.qa-a code {
-  font-family: 'JetBrains Mono', monospace;
-  background: #0a0e18;
-  border: 1px solid var(--border);
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-size: 0.78rem;
-  color: #e3b341;
-}
-.qa-a .highlight {
-  color: var(--green);
-  font-weight: 700;
-}
-
-/* ── HIGHLIGHT BOX ── */
-.info-box {
-  border-radius: 10px;
-  padding: 16px 20px;
-  margin-bottom: 16px;
-  border-right: 3px solid var(--ib-color, #3b82f6);
-  background: rgba(59,130,246,0.06);
-  font-size: 0.85rem;
-  line-height: 1.7;
-  color: #94a3b8;
-}
-.info-box strong { color: #e2e8f0; }
-
-/* ── SECTION FLOW ── */
-.flow-row {
-  display: flex;
-  align-items: stretch;
-  gap: 0;
-  direction: ltr;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-}
-.flow-box {
-  flex: 1;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-top: 3px solid var(--fb, #3b82f6);
-  padding: 14px 16px;
-  font-size: 0.8rem;
-  min-width: 120px;
-}
-.flow-box h4 { font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--fb,#3b82f6); margin-bottom:6px; font-weight:700; }
-.flow-box p  { color:#64748b; font-size:0.75rem; line-height:1.5; }
-.flow-sep { width:24px; display:flex; align-items:center; justify-content:center; color:var(--border); font-size:1rem; flex-shrink:0; }
-
-/* ── NAV BUTTONS ── */
-.nav-bar {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  background: #0d1117;
-  border-top: 1px solid var(--border);
-  padding: 14px 28px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  z-index: 100;
-}
-.btn {
-  padding: 10px 26px;
-  border-radius: 8px;
-  font-family: 'Tajawal', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 700;
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s;
-}
-.btn-prev {
-  background: #1e2d45;
-  color: #94a3b8;
-}
-.btn-prev:hover { background: #263a5a; color: #fff; }
-.btn-next {
-  background: var(--accent);
-  color: #fff;
-}
-.btn-next:hover { background: #2563eb; transform: translateY(-1px); }
-.btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none !important; }
-
-.dots {
-  display: flex;
-  gap: 6px;
-}
-.dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--border);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.dot.active { background: var(--accent); width: 22px; border-radius: 4px; }
-</style>
+    .dot{position:fixed;border-radius:50%;animation:floatDot linear infinite;pointer-events:none;z-index:0;}
+    @keyframes floatDot{0%{transform:translateY(100vh);opacity:0}10%{opacity:0.5}90%{opacity:0.3}100%{transform:translateY(-10vh);opacity:0}}
+    @media(max-width:600px){nav{padding:0.9rem 1.2rem;}.hero-top{flex-direction:column;}.intro-grid{grid-template-columns:1fr;}}
+  </style>
 </head>
 <body>
 
-<div class="progress-bar" id="progress"></div>
-
-<header class="header">
-  <div>
-    <div class="header-title">📚 شرح Database Schema</div>
-    <div class="header-sub">Retail System · ERD · 11 Entities</div>
-  </div>
-  <div class="step-counter" id="stepCounter">1 / 8</div>
-</header>
-
-<div class="slides-wrap">
-
-<!-- ══════════ SLIDE 1: المقدمة ══════════ -->
-<div class="slide active" id="slide-0">
-  <div class="slide-tag">المقدمة · Introduction</div>
-  <div class="slide-title">إيه هو الـ Database Schema؟</div>
-  <div class="slide-subtitle">What is a Database Schema?</div>
-
-  <div class="concept-grid">
-    <div class="concept-box" style="--c:#3b82f6">
-      <h3>🗂️ الـ Schema</h3>
-      <p>هو المخطط اللي بيوضح إزاي الجداول (Tables) متربطة ببعض في قاعدة البيانات</p>
-      <span class="en">Blueprint of how tables are structured & related</span>
-    </div>
-    <div class="concept-box" style="--c:#22c55e">
-      <h3>📦 الـ Entity</h3>
-      <p>كل جدول بيمثل كيان (Entity) — زي PRODUCTS أو CUSTOMERS</p>
-      <span class="en">Each table = one entity in the real world</span>
-    </div>
-    <div class="concept-box" style="--c:#f59e0b">
-      <h3>🔑 الـ Attribute</h3>
-      <p>كل عمود في الجدول بيمثل خاصية (Attribute) — زي الاسم أو السعر</p>
-      <span class="en">Columns = attributes/properties of the entity</span>
-    </div>
-    <div class="concept-box" style="--c:#a855f7">
-      <h3>🔗 الـ Relationship</h3>
-      <p>العلاقة بين الجداول بتتعمل عن طريق المفاتيح الأجنبية (Foreign Keys)</p>
-      <span class="en">Tables connect via Foreign Keys (FK)</span>
-    </div>
-  </div>
-
-  <div class="info-box" style="--ib-color:#3b82f6">
-    🎯 <strong>النظام اللي بندرسه:</strong> نظام متجر للبيع بالتجزئة (Retail System) — بيشمل المنتجات، الموردين، العملاء، الموظفين، والمبيعات.
-    <br><br>
-    <strong>The system:</strong> A retail store management system covering products, suppliers, customers, employees & sales.
-  </div>
+<div id="page-loader">
+  <div class="loader-logo">404</div>
+  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
 </div>
 
-<!-- ══════════ SLIDE 2: المفاتيح ══════════ -->
-<div class="slide" id="slide-1">
-  <div class="slide-tag">المفاتيح · Keys</div>
-  <div class="slide-title">PK · FK · UK</div>
-  <div class="slide-subtitle">أهم 3 مصطلحات لازم تفهمهم</div>
+<div id="progress-bar"></div>
+<canvas id="bg-canvas"></canvas>
+<div class="grid-overlay"></div>
+<div id="dots"></div>
+<div class="wrapper">
 
-  <div class="card">
-    <div class="card-title" style="color:#56d364"><span class="card-icon">🟢</span> PK — Primary Key (المفتاح الأساسي)</div>
-    <table class="mini-table">
-      <tr><td><span class="badge b-pk">PK</span></td><td class="dt-int">customer_id</td><td style="color:#64748b">رقم مميز لكل صف — مش بيتكرر أبداً</td></tr>
-    </table>
-    <div class="info-box" style="--ib-color:#22c55e; margin-top:12px; margin-bottom:0">
-      ✅ كل جدول عنده PK واحد بس · <strong>NOT NULL + UNIQUE + AUTO_INCREMENT</strong>
+  <nav id="main-nav">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-logo-box">404</div>
+      <div class="nav-name"><span>404</span> Team Not Found</div>
+    </a>
+    <a href="database.html" class="nav-back">← Back</a>
+  </nav>
+
+  <div class="hero">
+    <div class="breadcrumb">
+      <a href="index.html">Home</a> / <a href="database.html">Database Systems</a> / Explanation
+    </div>
+    <div class="hero-top">
+      <div class="hero-icon">📖</div>
+      <div>
+        <div class="hero-code">CS · 301 — DATABASE SCHEMA · EXPLAINED</div>
+        <h1 class="hero-title">Database Schema <span>Explained</span></h1>
+      </div>
+    </div>
+    <p class="hero-sub">A full walkthrough of the retail database schema — explaining every concept from Schema and Entity to Attributes and Relationships, in both Arabic and English.</p>
+    <div class="version-row">
+      <span class="v-badge v-purple">RETAIL SYSTEM</span>
+      <span class="v-badge v-blue">ERD · 11 ENTITIES</span>
+      <span class="v-badge v-green">AR / EN</span>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title" style="color:#79c0ff"><span class="card-icon">🔵</span> FK — Foreign Key (المفتاح الأجنبي)</div>
-    <table class="mini-table">
-      <tr><td><span class="badge b-fk">FK</span></td><td class="dt-int">category_id</td><td style="color:#64748b">بيشير لـ PK في جدول تاني (CATEGORIES)</td></tr>
-    </table>
-    <div class="info-box" style="--ib-color:#79c0ff; margin-top:12px; margin-bottom:0">
-      🔗 بيعمل الـ Relationship بين الجداول — زي إن المنتج مرتبط بفئة معينة
+  <div class="divider"></div>
+
+  <div class="content">
+
+    <div class="system-box reveal">
+      <div class="sb-label">// System Overview</div>
+      <div class="sb-title-ar">🌟 النظام اللي بندرسه</div>
+      <div class="sb-desc-ar">نظام متجر للبيع بالتجزئة (Retail System) — بيشمل المنتجات، الموردين، العملاء، الموظفين، والمبيعات.</div>
+      <div class="sb-desc-en">A retail store management system covering products, suppliers, customers, employees & sales transactions.</div>
+      <div class="sb-chips">
+        <span class="sb-chip blue">PRODUCTS</span>
+        <span class="sb-chip purple">SUPPLIERS</span>
+        <span class="sb-chip green">CUSTOMERS</span>
+        <span class="sb-chip yellow">EMPLOYEES</span>
+        <span class="sb-chip blue">SALES</span>
+        <span class="sb-chip purple">INVENTORY</span>
+      </div>
     </div>
+
+    <div class="sec-head reveal">
+      <div class="sec-label sl-blue">// Core Concepts</div>
+      <div class="sec-line"></div>
+    </div>
+    <p style="color:var(--muted);font-size:0.88rem;margin-bottom:1.5rem;" class="reveal">المفاهيم الأساسية اللي بيتبنى عليها الـ Database Schema</p>
+
+    <div class="intro-grid">
+
+      <div class="intro-card ic-blue reveal">
+        <div class="ic-icon">🗺️</div>
+        <div class="ic-en">CONCEPT 01 / 04</div>
+        <div class="ic-title-ar">الـ Schema</div>
+        <div class="ic-desc-ar">هو المخطط اللي بيوضح إزاي الجداول (Tables) متربطة ببعض في قاعدة البيانات.</div>
+        <div class="ic-desc-en">Blueprint of how tables are structured & related.</div>
+      </div>
+
+      <div class="intro-card ic-purple reveal" style="transition-delay:.1s">
+        <div class="ic-icon">📦</div>
+        <div class="ic-en">CONCEPT 02 / 04</div>
+        <div class="ic-title-ar">الـ Entity</div>
+        <div class="ic-desc-ar">كل جدول بيمثل كيان (Entity) — زي CUSTOMERS أو PRODUCTS.</div>
+        <div class="ic-desc-en">Each table = one entity in the real world.</div>
+      </div>
+
+      <div class="intro-card ic-green reveal" style="transition-delay:.2s">
+        <div class="ic-icon">🔑</div>
+        <div class="ic-en">CONCEPT 03 / 04</div>
+        <div class="ic-title-ar">الـ Attribute</div>
+        <div class="ic-desc-ar">كل عمود في الجدول بيمثل خاصية (Attribute) — زي الاسم أو السعر.</div>
+        <div class="ic-desc-en">Columns = attributes / properties of the entity.</div>
+      </div>
+
+      <div class="intro-card ic-yellow reveal" style="transition-delay:.3s">
+        <div class="ic-icon">🔗</div>
+        <div class="ic-en">CONCEPT 04 / 04</div>
+        <div class="ic-title-ar">الـ Relationship</div>
+        <div class="ic-desc-ar">العلاقة بين الجداول بتتعمل عن طريق المفاتيح الأجنبية (Foreign Keys).</div>
+        <div class="ic-desc-en">Tables connect via Foreign Keys (FK).</div>
+      </div>
+
+    </div>
+
+    <div class="sec-head reveal" style="margin-top:2rem;">
+      <div class="sec-label sl-purple">// Full ERD</div>
+      <div class="sec-line"></div>
+    </div>
+    <p style="color:var(--muted);font-size:0.88rem;margin-bottom:1.5rem;" class="reveal">
+      عايز تشوف الـ Schema كامل مع كل الجداول والحقول؟ افتح الـ ERD Model.
+    </p>
+    <a href="db-model.html" class="next-btn reveal">
+      🗃️ View Full ERD Model <span class="arrow">→</span>
+    </a>
+
   </div>
 
-  <div class="card">
-    <div class="card-title" style="color:#e3b341"><span class="card-icon">🟡</span> UK — Unique Key (مفتاح فريد)</div>
-    <table class="mini-table">
-      <tr><td><span class="badge b-uk">UK</span></td><td class="dt-varchar">email</td><td style="color:#64748b">مش بيتكرر بس مش بالضرورة PK</td></tr>
-    </table>
-    <div class="info-box" style="--ib-color:#e3b341; margin-top:12px; margin-bottom:0">
-      📧 زي الـ Email — كل شخص عنده email مختلف، بس مش هو الـ ID الرئيسي
-    </div>
-  </div>
-</div>
+  <div class="divider"></div>
 
-<!-- ══════════ SLIDE 3: Data Types ══════════ -->
-<div class="slide" id="slide-2">
-  <div class="slide-tag">أنواع البيانات · Data Types</div>
-  <div class="slide-title">أنواع البيانات</div>
-  <div class="slide-subtitle">كل attribute عنده نوع بيانات محدد</div>
-
-  <div class="card">
-    <table class="mini-table">
-      <thead>
-        <tr><th>النوع</th><th>Type</th><th>بيُستخدم إمتى؟</th><th>مثال</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><span class="dt-int">INT</span></td><td>Integer</td><td style="color:#64748b">أرقام صحيحة — IDs والكميات</td><td class="dt-int">1, 5, 100</td></tr>
-        <tr><td><span class="dt-varchar">VARCHAR</span></td><td>Variable Char</td><td style="color:#64748b">نصوص متغيرة — أسماء وإيميلات</td><td class="dt-varchar">"Ahmed", "test@x.com"</td></tr>
-        <tr><td><span class="dt-decimal">DECIMAL</span></td><td>Decimal</td><td style="color:#64748b">أرقام عشرية — أسعار</td><td class="dt-decimal">99.99, 1500.50</td></tr>
-        <tr><td><span class="dt-date">DATE</span></td><td>Date</td><td style="color:#64748b">تواريخ</td><td class="dt-date">2024-01-15</td></tr>
-        <tr><td><span class="dt-bool">BOOLEAN</span></td><td>Boolean</td><td style="color:#64748b">صح أو غلط فقط</td><td class="dt-bool">TRUE / FALSE</td></tr>
-        <tr><td><span class="dt-text">TEXT</span></td><td>Text</td><td style="color:#64748b">نصوص طويلة — وصف المنتج</td><td class="dt-text">"وصف تفصيلي..."</td></tr>
-        <tr><td><span class="dt-enum">ENUM</span></td><td>Enumeration</td><td style="color:#64748b">قيم ثابتة محددة مسبقاً</td><td class="dt-enum">CASH, CARD, TRANSFER</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="info-box" style="--ib-color:#a855f7">
-    💡 <strong>تلميح مهم:</strong> ENUM بتستخدمه لما القيم محدودة ومعروفة — زي حالة الطلب: <code>PENDING | SENT | RECEIVED | CANCELLED</code>
-  </div>
-</div>
-
-<!-- ══════════ SLIDE 4: الأقسام ══════════ -->
-<div class="slide" id="slide-3">
-  <div class="slide-tag">الأقسام · Sections</div>
-  <div class="slide-title">إزاي الجداول متقسمة؟</div>
-  <div class="slide-subtitle">النظام متقسم لـ 4 أقسام رئيسية</div>
-
-  <div class="flow-row">
-    <div class="flow-box" style="--fb:#3b82f6; border-radius:10px 0 0 10px">
-      <h4>📁 CATALOG</h4>
-      <p>CATEGORIES<br>PRODUCTS<br>INVENTORY</p>
-    </div>
-    <div class="flow-sep">→</div>
-    <div class="flow-box" style="--fb:#f0883e">
-      <h4>🏭 PURCHASING</h4>
-      <p>SUPPLIERS<br>PURCHASE_ORDERS<br>PURCHASE_ITEMS</p>
-    </div>
-    <div class="flow-sep">→</div>
-    <div class="flow-box" style="--fb:#22c55e">
-      <h4>👥 CUSTOMERS</h4>
-      <p>CUSTOMERS<br>LOYALTY</p>
-    </div>
-    <div class="flow-sep">→</div>
-    <div class="flow-box" style="--fb:#a855f7; border-radius:0 10px 10px 0">
-      <h4>💳 SALES</h4>
-      <p>EMPLOYEES<br>SALES<br>SALE_ITEMS</p>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title" style="color:#3b82f6">🔗 العلاقات الرئيسية بين الأقسام</div>
-    <div class="rel-diagram">
-      <div class="rel-entity" style="--ec:#3b82f6">CATEGORIES</div>
-      <div class="rel-arrow"><div class="line"></div><div class="label">1→N</div></div>
-      <div class="rel-entity" style="--ec:#a855f7">PRODUCTS</div>
-      <div class="rel-arrow"><div class="line"></div><div class="label">1→1</div></div>
-      <div class="rel-entity" style="--ec:#22c55e">INVENTORY</div>
-    </div>
-    <div class="rel-diagram">
-      <div class="rel-entity" style="--ec:#f0883e">SUPPLIERS</div>
-      <div class="rel-arrow"><div class="line"></div><div class="label">1→N</div></div>
-      <div class="rel-entity" style="--ec:#ef4444">PURCHASE_ORDERS</div>
-      <div class="rel-arrow"><div class="line"></div><div class="label">1→N</div></div>
-      <div class="rel-entity" style="--ec:#e3b341">PURCHASE_ITEMS</div>
-    </div>
-    <div class="rel-diagram">
-      <div class="rel-entity" style="--ec:#06b6d4">CUSTOMERS</div>
-      <div class="rel-arrow"><div class="line"></div><div class="label">1→N</div></div>
-      <div class="rel-entity" style="--ec:#22c55e">SALES</div>
-      <div class="rel-arrow"><div class="line"></div><div class="label">1→N</div></div>
-      <div class="rel-entity" style="--ec:#a855f7">SALE_ITEMS</div>
-    </div>
-  </div>
-
-  <div class="info-box" style="--ib-color:#06b6d4">
-    📌 <strong>1→N يعني:</strong> One-to-Many — ممكن فئة واحدة (CATEGORY) تضم كتير من المنتجات (PRODUCTS)
-  </div>
-</div>
-
-<!-- ══════════ SLIDE 5: جداول مهمة ══════════ -->
-<div class="slide" id="slide-4">
-  <div class="slide-tag">الجداول المهمة · Key Tables</div>
-  <div class="slide-title">أهم الجداول في النظام</div>
-  <div class="slide-subtitle">PRODUCTS · SALES · SALE_ITEMS</div>
-
-  <div class="card">
-    <div class="card-title" style="color:#a855f7">📦 PRODUCTS — قلب النظام</div>
-    <table class="mini-table">
-      <thead><tr><th>Key</th><th>Attribute</th><th>Type</th><th>الوظيفة</th></tr></thead>
-      <tbody>
-        <tr><td><span class="badge b-pk">PK</span></td><td>product_id</td><td class="dt-int">INT</td><td style="color:#64748b">رقم تعريف المنتج</td></tr>
-        <tr><td><span class="badge b-fk">FK</span></td><td>category_id</td><td class="dt-int">INT</td><td style="color:#64748b">الفئة اللي ينتمي ليها</td></tr>
-        <tr><td><span class="badge b-fk">FK</span></td><td>supplier_id</td><td class="dt-int">INT</td><td style="color:#64748b">المورد اللي بيوفره</td></tr>
-        <tr><td><span class="badge b-uk">UK</span></td><td>sku</td><td class="dt-varchar">VARCHAR</td><td style="color:#64748b">كود المنتج الفريد</td></tr>
-        <tr><td></td><td>unit_price</td><td class="dt-decimal">DECIMAL</td><td style="color:#64748b">سعر البيع</td></tr>
-        <tr><td></td><td>cost_price</td><td class="dt-decimal">DECIMAL</td><td style="color:#64748b">سعر الشراء (التكلفة)</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="card">
-    <div class="card-title" style="color:#22c55e">💳 SALES + SALE_ITEMS — علاقة مهمة جداً</div>
-    <div class="info-box" style="--ib-color:#22c55e; margin-bottom:12px">
-      🛒 <strong>SALES</strong> = رأس الفاتورة (Header) — بيانات العملية ككل<br>
-      🛒 <strong>SALE_ITEMS</strong> = تفاصيل الفاتورة (Lines) — كل منتج في الفاتورة
-    </div>
-    <table class="mini-table">
-      <thead><tr><th>Key</th><th>Attribute</th><th>Type</th><th>الوظيفة</th></tr></thead>
-      <tbody>
-        <tr><td><span class="badge b-pk">PK</span></td><td>sale_item_id</td><td class="dt-int">INT</td><td style="color:#64748b">رقم سطر الفاتورة</td></tr>
-        <tr><td><span class="badge b-fk">FK</span></td><td>sale_id</td><td class="dt-int">INT</td><td style="color:#64748b">رقم الفاتورة الأم</td></tr>
-        <tr><td><span class="badge b-fk">FK</span></td><td>product_id</td><td class="dt-int">INT</td><td style="color:#64748b">المنتج المباع</td></tr>
-        <tr><td></td><td>quantity</td><td class="dt-int">INT</td><td style="color:#64748b">الكمية</td></tr>
-        <tr><td></td><td>subtotal</td><td class="dt-decimal">DECIMAL</td><td style="color:#64748b">= quantity × unit_price</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- ══════════ SLIDE 6: الـ Constraints ══════════ -->
-<div class="slide" id="slide-5">
-  <div class="slide-tag">القيود · Constraints</div>
-  <div class="slide-title">الـ Constraints</div>
-  <div class="slide-subtitle">القواعد اللي بتحمي البيانات من الأخطاء</div>
-
-  <div class="concept-grid">
-    <div class="concept-box" style="--c:#f59e0b">
-      <h3>⚠️ NOT NULL</h3>
-      <p>الحقل ده لازم يكون فيه قيمة — مش مسموح يبقى فاضي</p>
-      <span class="en">Field must always have a value</span>
-    </div>
-    <div class="concept-box" style="--c:#22c55e">
-      <h3>🔄 AUTO_INCREMENT</h3>
-      <p>الرقم بيزيد تلقائياً — بيتستخدم مع PK</p>
-      <span class="en">ID increases automatically: 1, 2, 3...</span>
-    </div>
-    <div class="concept-box" style="--c:#a855f7">
-      <h3>✨ UNIQUE</h3>
-      <p>القيمة لازم تكون مختلفة في كل صف</p>
-      <span class="en">No duplicate values allowed</span>
-    </div>
-    <div class="concept-box" style="--c:#3b82f6">
-      <h3>🏷️ DEFAULT</h3>
-      <p>قيمة افتراضية لو مش محطوط فيه حاجة</p>
-      <span class="en">Used when no value is provided</span>
-    </div>
-    <div class="concept-box" style="--c:#ef4444">
-      <h3>🔍 CHECK</h3>
-      <p>شرط لازم يتحقق — زي إن السعر أكبر من صفر</p>
-      <span class="en">Validates data against a condition</span>
-    </div>
-    <div class="concept-box" style="--c:#06b6d4">
-      <h3>🔗 REFERENCES</h3>
-      <p>بيربط الـ FK بالـ PK في جدول تاني</p>
-      <span class="en">Links FK to PK in another table</span>
-    </div>
-  </div>
-
-  <div class="info-box" style="--ib-color:#ef4444">
-    🎯 <strong>مثال عملي:</strong><br>
-    <code>unit_price DECIMAL(10,2) NOT NULL CHECK (unit_price &gt; 0)</code><br>
-    <span style="color:#64748b">يعني: السعر لازم يكون موجود وأكبر من صفر</span>
-  </div>
-</div>
-
-<!-- ══════════ SLIDE 7: ملخص العلاقات ══════════ -->
-<div class="slide" id="slide-6">
-  <div class="slide-tag">العلاقات · Relationships</div>
-  <div class="slide-title">ملخص كل العلاقات</div>
-  <div class="slide-subtitle">مين بيرتبط بمين؟</div>
-
-  <div class="card">
-    <table class="mini-table">
-      <thead><tr><th>الجدول</th><th>يرتبط بـ</th><th>نوع العلاقة</th><th>السبب</th></tr></thead>
-      <tbody>
-        <tr><td style="color:#a855f7">PRODUCTS</td><td style="color:#3b82f6">CATEGORIES</td><td class="dt-enum">N→1</td><td style="color:#64748b">كل منتج في فئة</td></tr>
-        <tr><td style="color:#a855f7">PRODUCTS</td><td style="color:#f0883e">SUPPLIERS</td><td class="dt-enum">N→1</td><td style="color:#64748b">كل منتج له مورد</td></tr>
-        <tr><td style="color:#22c55e">INVENTORY</td><td style="color:#a855f7">PRODUCTS</td><td class="dt-enum">1→1</td><td style="color:#64748b">كل منتج له مخزون واحد</td></tr>
-        <tr><td style="color:#ef4444">PO</td><td style="color:#f0883e">SUPPLIERS</td><td class="dt-enum">N→1</td><td style="color:#64748b">طلب شراء لمورد معين</td></tr>
-        <tr><td style="color:#e3b341">P_ITEMS</td><td style="color:#ef4444">PO</td><td class="dt-enum">N→1</td><td style="color:#64748b">كل طلب فيه أسطر</td></tr>
-        <tr><td style="color:#06b6d4">LOYALTY</td><td style="color:#06b6d4">CUSTOMERS</td><td class="dt-enum">1→1</td><td style="color:#64748b">عميل واحد → بطاقة ولاء واحدة</td></tr>
-        <tr><td style="color:#22c55e">SALES</td><td style="color:#06b6d4">CUSTOMERS</td><td class="dt-enum">N→1</td><td style="color:#64748b">عميل ممكن يعمل فواتير كتير</td></tr>
-        <tr><td style="color:#22c55e">SALES</td><td style="color:#a5b4fc">EMPLOYEES</td><td class="dt-enum">N→1</td><td style="color:#64748b">موظف بيسجل الفاتورة</td></tr>
-        <tr><td style="color:#a855f7">SALE_ITEMS</td><td style="color:#22c55e">SALES</td><td class="dt-enum">N→1</td><td style="color:#64748b">كل فاتورة فيها أسطر</td></tr>
-        <tr><td style="color:#a855f7">SALE_ITEMS</td><td style="color:#a855f7">PRODUCTS</td><td class="dt-enum">N→1</td><td style="color:#64748b">كل سطر = منتج معين</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="info-box" style="--ib-color:#f59e0b">
-    🧠 <strong>علاقتان ذاتيتان (Self-Reference):</strong><br>
-    • <code>CATEGORIES.parent_category_id → CATEGORIES.category_id</code> — فئات داخل فئات<br>
-    • <code>EMPLOYEES.manager_id → EMPLOYEES.employee_id</code> — المدير موظف في نفس الجدول
-  </div>
-</div>
-
-<!-- ══════════ SLIDE 8: الأسئلة المتوقعة ══════════ -->
-<div class="slide" id="slide-7">
-  <div class="slide-tag">أسئلة الامتحان · Exam Q&A</div>
-  <div class="slide-title">🎯 الأسئلة المتوقعة</div>
-  <div class="slide-subtitle">اضغط على السؤال عشان تشوف الإجابة</div>
-
-  <div class="qa-item" style="--qa-color:#3b82f6">
-    <div class="qa-q" onclick="toggleQA(this)">
-      <span class="qa-num">Q1</span>
-      <span>ما الفرق بين PK و FK وامتى بنستخدم كل واحد؟</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-a">
-      <span class="highlight">PK (Primary Key):</span> معرّف فريد لكل صف في الجدول نفسه — <code>NOT NULL + UNIQUE</code><br><br>
-      <span class="highlight">FK (Foreign Key):</span> بيشير لـ PK في جدول تاني عشان يعمل علاقة بينهم<br><br>
-      <strong>مثال:</strong> في جدول PRODUCTS، الـ <code>product_id</code> هو PK، والـ <code>category_id</code> هو FK بيرتبط بجدول CATEGORIES
-    </div>
-  </div>
-
-  <div class="qa-item" style="--qa-color:#22c55e">
-    <div class="qa-q" onclick="toggleQA(this)">
-      <span class="qa-num">Q2</span>
-      <span>ليه بنستخدم جدولين SALES و SALE_ITEMS بدل جدول واحد؟</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-a">
-      لأن فاتورة واحدة ممكن تحتوي على <strong>أكتر من منتج</strong>.<br><br>
-      • <code>SALES</code> = بيانات الفاتورة كلها (التاريخ، العميل، الإجمالي)<br>
-      • <code>SALE_ITEMS</code> = كل سطر منتج على حدة<br><br>
-      ده بيسمى <span class="highlight">Header-Detail Pattern</span> — شائع جداً في أنظمة المحاسبة والمبيعات
-    </div>
-  </div>
-
-  <div class="qa-item" style="--qa-color:#f59e0b">
-    <div class="qa-q" onclick="toggleQA(this)">
-      <span class="qa-num">Q3</span>
-      <span>إيه الفرق بين UNIQUE KEY و PRIMARY KEY؟</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-a">
-      | | <strong>PK</strong> | <strong>UK</strong> |<br>
-      الجدول عنده كام؟ | <span class="highlight">واحد بس</span> | ممكن يكون أكتر من واحد |<br>
-      ممكن يكون NULL؟ | <span style="color:#ef4444">❌ لأ</span> | <span style="color:#22c55e">✅ أيوه</span> |<br><br>
-      <strong>مثال:</strong> في CUSTOMERS، الـ <code>customer_id</code> هو PK، والـ <code>email</code> هو UK لأنه مش بيتكرر بس مش هو المعرّف الرئيسي
-    </div>
-  </div>
-
-  <div class="qa-item" style="--qa-color:#a855f7">
-    <div class="qa-q" onclick="toggleQA(this)">
-      <span class="qa-num">Q4</span>
-      <span>إيه هو الـ Self-Referencing وامتى بنستخدمه؟</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-a">
-      هو لما جدول بيعمل FK يشاور على نفسه.<br><br>
-      <strong>مثالين في النظام:</strong><br>
-      1️⃣ <code>CATEGORIES.parent_category_id → CATEGORIES.category_id</code><br>
-      يعني: فئة ممكن تكون داخل فئة أكبر (مثل: "موبايلات" داخل "إلكترونيات")<br><br>
-      2️⃣ <code>EMPLOYEES.manager_id → EMPLOYEES.employee_id</code><br>
-      يعني: المدير نفسه موظف في نفس الجدول
-    </div>
-  </div>
-
-  <div class="qa-item" style="--qa-color:#ef4444">
-    <div class="qa-q" onclick="toggleQA(this)">
-      <span class="qa-num">Q5</span>
-      <span>ليه بنستخدم ENUM بدل VARCHAR في بعض الحقول؟</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-a">
-      <span class="highlight">ENUM</span> بنستخدمه لما القيم محدودة ومعروفة مسبقاً — عشان:<br><br>
-      ✅ نمنع إدخال قيم غلط<br>
-      ✅ نوفر مساحة تخزين<br>
-      ✅ الكود يبقى أوضح<br><br>
-      <strong>أمثلة في النظام:</strong><br>
-      • <code>payment_method: CASH | CARD | TRANSFER | VOUCHER</code><br>
-      • <code>status: PENDING | SENT | RECEIVED | CANCELLED</code><br>
-      • <code>tier: BRONZE | SILVER | GOLD | PLATINUM</code>
-    </div>
-  </div>
-
-  <div class="qa-item" style="--qa-color:#06b6d4">
-    <div class="qa-q" onclick="toggleQA(this)">
-      <span class="qa-num">Q6</span>
-      <span>ما الفرق بين DECIMAL و INT؟ وامتى بستخدم كل واحد؟</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-a">
-      <code>INT</code> = أرقام صحيحة فقط (بدون كسور) — زي IDs والكميات: <span class="highlight">1, 5, 100</span><br><br>
-      <code>DECIMAL(10,2)</code> = أرقام عشرية — زي الأسعار: <span class="highlight">99.99, 1500.50</span><br><br>
-      <strong>في النظام:</strong><br>
-      • <code>quantity → INT</code> (الكمية دايما رقم صحيح)<br>
-      • <code>unit_price → DECIMAL(10,2)</code> (السعر ممكن يكون فيه فلوس)
-    </div>
-  </div>
-
-  <div class="qa-item" style="--qa-color:#22c55e">
-    <div class="qa-q" onclick="toggleQA(this)">
-      <span class="qa-num">Q7</span>
-      <span>إيه الفرق بين INVENTORY و PRODUCTS؟</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-a">
-      <span class="highlight">PRODUCTS</span> = بيانات المنتج الثابتة (الاسم، السعر، الوصف)<br><br>
-      <span class="highlight">INVENTORY</span> = بيانات المخزون اللي بتتغير باستمرار (الكمية المتاحة، حد إعادة الطلب)<br><br>
-      الفصل ده بيسهّل تتبع تغييرات المخزون بدون ما يأثر على بيانات المنتج الأساسية — ده بيسمى <strong>Separation of Concerns</strong>
-    </div>
-  </div>
-
-  <div class="qa-item" style="--qa-color:#f0883e">
-    <div class="qa-q" onclick="toggleQA(this)">
-      <span class="qa-num">Q8</span>
-      <span>ليه جدول LOYALTY منفصل عن CUSTOMERS؟</span>
-      <span class="qa-toggle">▼</span>
-    </div>
-    <div class="qa-a">
-      لأنه مش كل عميل عنده بطاقة ولاء — البطاقة <strong>اختيارية</strong>.<br><br>
-      لو دمجناهم في جدول واحد، العملاء اللي مش عندهم بطاقة هيبقى عندهم حقول فاضية كتير (NULL).<br><br>
-      الفصل بيخلي:<br>
-      ✅ البيانات أنظف<br>
-      ✅ التصميم أمرن (ممكن تضيف نظام ولاء لنظام قديم بسهولة)<br>
-      ✅ Relationship = <span class="highlight">One-to-One</span> (عميل واحد ← بطاقة واحدة كحد أقصى)
-    </div>
-  </div>
-</div>
-
-</div><!-- /slides-wrap -->
-
-<!-- NAV BAR -->
-<div class="nav-bar">
-  <button class="btn btn-prev" id="btnPrev" onclick="changeSlide(-1)" disabled>→ السابق</button>
-  <div class="dots" id="dots"></div>
-  <button class="btn btn-next" id="btnNext" onclick="changeSlide(1)">التالي ←</button>
+  <footer>
+    <div class="footer-brand">404 TEAM NOT FOUND</div>
+    <div class="footer-txt">DATABASE SCHEMA · EXPLAINED · FCI TANTA</div>
+    <div class="footer-txt">2025</div>
+  </footer>
 </div>
 
 <script>
-const totalSlides = 8;
-let current = 0;
+  const canvas=document.getElementById('bg-canvas');const ctx=canvas.getContext('2d');let W,H,nodes=[];
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+  function initNodes(){nodes=[];const n=Math.floor(W*H/22000);for(let i=0;i<n;i++)nodes.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*2+1,c:['#00d4ff','#7c3aed','#10b981'][Math.floor(Math.random()*3)]});}
+  function draw(){ctx.clearRect(0,0,W,H);nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1;});for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.hypot(dx,dy);if(d<120){ctx.beginPath();ctx.strokeStyle=`rgba(0,212,255,${(1-d/120)*.18})`;ctx.lineWidth=1;ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke();}}nodes.forEach(n=>{ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle=n.c;ctx.fill();});requestAnimationFrame(draw);}
+  resize();initNodes();draw();window.addEventListener('resize',()=>{resize();initNodes();});
 
-const slides = document.querySelectorAll('.slide');
-const dotsWrap = document.getElementById('dots');
-const progress = document.getElementById('progress');
-const stepCounter = document.getElementById('stepCounter');
+  const dc=document.getElementById('dots');
+  ['#00d4ff','#7c3aed','#10b981'].forEach(c=>{for(let i=0;i<4;i++){const d=document.createElement('div');d.className='dot';const s=Math.random()*3+2;d.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}vw;background:${c};animation-duration:${Math.random()*14+10}s;animation-delay:${Math.random()*8}s;`;dc.appendChild(d);}});
 
-// Build dots
-const slideTitles = ['مقدمة','المفاتيح','Data Types','الأقسام','الجداول','Constraints','العلاقات','أسئلة'];
-for (let i = 0; i < totalSlides; i++) {
-  const d = document.createElement('div');
-  d.className = 'dot' + (i === 0 ? ' active' : '');
-  d.title = slideTitles[i];
-  d.onclick = () => goTo(i);
-  dotsWrap.appendChild(d);
-}
+  // Scroll progress
+  const pb=document.getElementById('progress-bar');
+  window.addEventListener('scroll',()=>{const t=window.scrollY,dh=document.documentElement.scrollHeight-window.innerHeight;pb.style.width=(dh>0?(t/dh)*100:0)+'%';});
 
-function goTo(n) {
-  slides[current].classList.remove('active');
-  dotsWrap.children[current].classList.remove('active');
-  current = n;
-  slides[current].classList.add('active');
-  dotsWrap.children[current].classList.add('active');
-  document.getElementById('btnPrev').disabled = current === 0;
-  document.getElementById('btnNext').disabled = current === totalSlides - 1;
-  document.getElementById('btnNext').textContent = current === totalSlides - 1 ? '✅ انتهى' : 'التالي ←';
-  progress.style.width = ((current + 1) / totalSlides * 100) + '%';
-  stepCounter.textContent = (current + 1) + ' / ' + totalSlides;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+  // Nav shrink
+  const nav=document.getElementById('main-nav');
+  window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>60));
 
-function changeSlide(dir) {
-  const next = current + dir;
-  if (next >= 0 && next < totalSlides) goTo(next);
-}
+  // Reveal
+  const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}}),{threshold:.08});
+  document.querySelectorAll('.reveal').forEach(r=>obs.observe(r));
 
-function toggleQA(el) {
-  const item = el.closest('.qa-item');
-  const isOpen = item.classList.contains('open');
-  document.querySelectorAll('.qa-item').forEach(q => q.classList.remove('open'));
-  if (!isOpen) item.classList.add('open');
-}
-
-// Keyboard nav
-document.addEventListener('keydown', e => {
-  if (e.key === 'ArrowLeft') changeSlide(1);
-  if (e.key === 'ArrowRight') changeSlide(-1);
-});
-
-// Init progress
-progress.style.width = (1 / totalSlides * 100) + '%';
+  // 3D Tilt on intro cards
+  document.querySelectorAll('.intro-card').forEach(card=>{
+    card.addEventListener('mousemove',e=>{const r=card.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,cx=r.width/2,cy=r.height/2;card.style.transform=`perspective(700px) rotateX(${((y-cy)/cy)*-6}deg) rotateY(${((x-cx)/cx)*6}deg) translateY(-4px)`;});
+    card.addEventListener('mouseleave',()=>{card.style.transform='';});
+  });
 </script>
 </body>
 </html>
