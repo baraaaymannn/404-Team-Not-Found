@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SA Explanation — 404 Team Not Found</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--bg:#0a0e1a;--card:#141c35;--surface:#0f1628;--accent:#7c3aed;--accent2:#00d4ff;--accent3:#10b981;--accent4:#f59e0b;--text:#e2e8f0;--muted:#64748b;--border:#1e2d4a;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;}
+    #bg-canvas{position:fixed;inset:0;z-index:0;opacity:0.2;pointer-events:none;}
+    .grid-overlay{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(124,58,237,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(124,58,237,0.03) 1px,transparent 1px);background-size:60px 60px;}
+    .wrapper{position:relative;z-index:1;}
+
+    nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2.5rem;border-bottom:1px solid var(--border);backdrop-filter:blur(20px);background:rgba(10,14,26,0.92);position:sticky;top:0;z-index:100;}
+    .nav-brand{display:flex;align-items:center;gap:0.8rem;text-decoration:none;color:inherit;}
+    .nav-logo{width:34px;height:34px;border-radius:6px;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.58rem;font-weight:700;color:#fff;}
+    .nav-name{font-weight:800;font-size:0.95rem;}
+    .nav-name span{color:var(--accent2);}
+    .nav-back{font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--muted);text-decoration:none;border:1px solid var(--border);padding:0.4rem 1rem;border-radius:4px;transition:color .2s,border-color .2s;}
+    .nav-back:hover{color:var(--accent);border-color:var(--accent);}
+
+    .hero{padding:3.5rem 2rem 2rem;max-width:1000px;margin:0 auto;}
+    .crumb{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);margin-bottom:1.2rem;opacity:0;animation:fadeUp .6s ease forwards .1s;}
+    .crumb a{color:var(--accent2);text-decoration:none;}
+    .hero-row{display:flex;align-items:center;gap:1.2rem;margin-bottom:.8rem;opacity:0;animation:fadeUp .6s ease forwards .2s;}
+    .hero-ico{width:58px;height:58px;border-radius:10px;background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.25);display:flex;align-items:center;justify-content:center;font-size:1.6rem;}
+    .hero-code{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--accent);letter-spacing:.15em;margin-bottom:.25rem;}
+    .hero-title{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-.02em;}
+    .hero-title span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .hero-sub{font-size:.92rem;color:var(--muted);line-height:1.7;max-width:650px;opacity:0;animation:fadeUp .6s ease forwards .3s;margin-bottom:1.5rem;}
+    .badges{display:flex;gap:.7rem;flex-wrap:wrap;opacity:0;animation:fadeUp .6s ease forwards .4s;margin-bottom:2rem;}
+    .badge{font-family:'Space Mono',monospace;font-size:.62rem;padding:.22rem .7rem;border-radius:3px;border:1px solid;letter-spacing:.07em;}
+    .b-p{color:var(--accent); border-color:rgba(124,58,237,.3);background:rgba(124,58,237,.07);}
+    .b-b{color:var(--accent2);border-color:rgba(0,212,255,.3); background:rgba(0,212,255,.07);}
+    .b-g{color:var(--accent3);border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.07);}
+
+    .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);}
+
+    .content{padding:3rem 2rem 4rem;max-width:1000px;margin:0 auto;}
+
+    /* SYSTEM BOX */
+    .sys-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2rem;margin-bottom:2.5rem;position:relative;overflow:hidden;}
+    .sys-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3));}
+    .sys-label{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--accent3);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.8rem;}
+    .sys-title{font-size:1.1rem;font-weight:800;margin-bottom:.5rem;}
+    .sys-desc{font-size:.88rem;color:var(--muted);line-height:1.7;margin-bottom:.8rem;}
+    .sys-chips{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.8rem;}
+    .chip{font-family:'Space Mono',monospace;font-size:.62rem;padding:.22rem .65rem;border-radius:3px;border:1px solid;}
+    .c-p{color:var(--accent); border-color:rgba(124,58,237,.3);background:rgba(124,58,237,.07);}
+    .c-b{color:var(--accent2);border-color:rgba(0,212,255,.3); background:rgba(0,212,255,.07);}
+    .c-g{color:var(--accent3);border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.07);}
+    .c-y{color:var(--accent4);border-color:rgba(245,158,11,.3); background:rgba(245,158,11,.07);}
+
+    /* SECTION HEADER */
+    .sec-head{display:flex;align-items:center;gap:.8rem;margin-bottom:1.2rem;}
+    .sec-line{height:1px;flex:1;background:linear-gradient(90deg,var(--border),transparent);}
+    .sec-lbl{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;white-space:nowrap;color:var(--accent);}
+
+    /* CONCEPT CARDS */
+    .concepts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.1rem;margin-bottom:2.5rem;}
+    .cc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.4rem;transition:transform .25s;}
+    .cc:hover{transform:translateY(-3px);}
+    .cc-blue  {border-top:3px solid var(--accent2);}
+    .cc-purple{border-top:3px solid var(--accent);}
+    .cc-green {border-top:3px solid var(--accent3);}
+    .cc-yellow{border-top:3px solid var(--accent4);}
+    .cc-ico{font-size:1.6rem;margin-bottom:.7rem;}
+    .cc-num{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted);letter-spacing:.1em;margin-bottom:.3rem;}
+    .cc-title{font-size:1rem;font-weight:800;margin-bottom:.5rem;}
+    .cc-blue   .cc-title{color:var(--accent2);}
+    .cc-purple .cc-title{color:var(--accent);}
+    .cc-green  .cc-title{color:var(--accent3);}
+    .cc-yellow .cc-title{color:var(--accent4);}
+    .cc-desc{font-size:.82rem;color:var(--muted);line-height:1.6;}
+
+    /* ACTORS TABLE */
+    .actors-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-bottom:2.5rem;}
+    .actor-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.3rem;text-align:center;}
+    .actor-ico{font-size:2rem;margin-bottom:.6rem;}
+    .actor-name{font-size:.95rem;font-weight:800;margin-bottom:.3rem;}
+    .actor-desc{font-size:.78rem;color:var(--muted);line-height:1.5;}
+    .actor-blue  .actor-name{color:var(--accent2);}
+    .actor-green .actor-name{color:var(--accent3);}
+    .actor-yellow.actor-name{color:var(--accent4);}
+
+    /* LINK BTN */
+    .view-btn{display:inline-flex;align-items:center;gap:.6rem;background:linear-gradient(135deg,var(--accent),#5b21b6);color:#fff;font-weight:700;font-family:'Syne',sans-serif;font-size:.88rem;padding:.8rem 1.8rem;border-radius:6px;text-decoration:none;transition:transform .2s,box-shadow .2s;margin-top:1.5rem;}
+    .view-btn:hover{transform:translateY(-3px);box-shadow:0 10px 25px rgba(124,58,237,.35);}
+
+    .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease;}
+    .reveal.visible{opacity:1;transform:none;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+    .dot{position:fixed;border-radius:50%;animation:floatDot linear infinite;pointer-events:none;z-index:0;}
+    @keyframes floatDot{0%{transform:translateY(100vh);opacity:0}10%{opacity:.4}90%{opacity:.2}100%{transform:translateY(-10vh);opacity:0}}
+    footer{border-top:1px solid var(--border);padding:1.5rem 2.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+    .fb{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--accent2);}
+    .ft{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--muted);}
+    @media(max-width:600px){nav{padding:.9rem 1.2rem;}.hero-row{flex-direction:column;}}
+  </style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<div class="grid-overlay"></div>
+<div id="dots"></div>
+<div class="wrapper">
+
+<nav>
+  <a href="index.html" class="nav-brand">
+    <div class="nav-logo">404</div>
+    <div class="nav-name"><span>404</span> Team Not Found</div>
+  </a>
+  <a href="system-analysis.html" class="nav-back">← Back</a>
+</nav>
+
+<div class="hero">
+  <div class="crumb"><a href="index.html">Home</a> / <a href="system-analysis.html">System Analysis</a> / Explanation</div>
+  <div class="hero-row">
+    <div class="hero-ico">📖</div>
+    <div>
+      <div class="hero-code">CS · 302 — SYSTEM ANALYSIS · EXPLAINED</div>
+      <h1 class="hero-title">SA Project <span>Explained</span></h1>
+    </div>
+  </div>
+  <p class="hero-sub">A full walkthrough of the Clothing Store Management System — explaining every diagram, actor, process, and data flow in the project.</p>
+  <div class="badges">
+    <span class="badge b-p">CLOTHING STORE</span>
+    <span class="badge b-b">4 DIAGRAMS</span>
+    <span class="badge b-g">FULL EXPLANATION</span>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="content">
+
+  <!-- SYSTEM OVERVIEW -->
+  <div class="sys-box reveal">
+    <div class="sys-label">// System Overview</div>
+    <div class="sys-title">🏪 Clothing Store Management System</div>
+    <div class="sys-desc">A complete management system for a clothing store that handles sales, inventory, customer data, staff management, and reporting. The system serves three main actors and coordinates multiple processes to ensure smooth store operations.</div>
+    <div class="sys-chips">
+      <span class="chip c-b">PROCESS SALE</span>
+      <span class="chip c-p">MANAGE INVENTORY</span>
+      <span class="chip c-g">GENERATE REPORTS</span>
+      <span class="chip c-y">MANAGE STAFF</span>
+      <span class="chip c-b">CUSTOMER MANAGEMENT</span>
+    </div>
+  </div>
+
+  <!-- ACTORS -->
+  <div class="sec-head reveal">
+    <div class="sec-lbl">// System Actors</div>
+    <div class="sec-line"></div>
+  </div>
+  <div class="actors-grid reveal">
+    <div class="actor-card actor-blue">
+      <div class="actor-ico">🛍️</div>
+      <div class="actor-name" style="color:var(--accent2);">Customer</div>
+      <div class="actor-desc">Browses inventory, requests out-of-stock items, provides feedback, and initiates purchases through the system.</div>
+    </div>
+    <div class="actor-card actor-green">
+      <div class="actor-ico">🏷️</div>
+      <div class="actor-name" style="color:var(--accent3);">Cashier</div>
+      <div class="actor-desc">Processes sales, handles returns, updates inventory, views customer history, and processes staff purchases.</div>
+    </div>
+    <div class="actor-card">
+      <div class="actor-ico">👔</div>
+      <div class="actor-name" style="color:var(--accent4);">Manager</div>
+      <div class="actor-desc">Manages inventory, generates reports, sets promotions, manages staff accounts, and performs system administration.</div>
+    </div>
+  </div>
+
+  <!-- DIAGRAM 1: USE CASE -->
+  <div class="sec-head reveal">
+    <div class="sec-lbl">// Diagram 1 — Use Case</div>
+    <div class="sec-line"></div>
+  </div>
+  <div class="concepts-grid reveal">
+    <div class="cc cc-blue">
+      <div class="cc-ico">🛒</div>
+      <div class="cc-num">CUSTOMER UC</div>
+      <div class="cc-title">Browse & Request</div>
+      <div class="cc-desc">Customer browses inventory via kiosk or app, can request out-of-stock items, and provides feedback about products.</div>
+    </div>
+    <div class="cc cc-green">
+      <div class="cc-ico">💳</div>
+      <div class="cc-num">CASHIER UC</div>
+      <div class="cc-title">Process & Manage</div>
+      <div class="cc-desc">Cashier processes sales, handles returns, updates inventory records, views customer purchase history, and processes staff purchases.</div>
+    </div>
+    <div class="cc cc-yellow">
+      <div class="cc-ico">📊</div>
+      <div class="cc-num">MANAGER UC</div>
+      <div class="cc-title">Control & Report</div>
+      <div class="cc-desc">Manager manages full inventory, generates sales and profit reports, sets store promotions, manages staff accounts, and performs system admin.</div>
+    </div>
+    <div class="cc cc-purple">
+      <div class="cc-ico">🔗</div>
+      <div class="cc-num">RELATIONSHIPS</div>
+      <div class="cc-title">Include & Extend</div>
+      <div class="cc-desc">«include»: Process Sale always includes Make Payment. «extend»: Authorize Credit Card extends Process Sale only when payment method is credit.</div>
+    </div>
+  </div>
+
+  <!-- DIAGRAM 2: DFD -->
+  <div class="sec-head reveal">
+    <div class="sec-lbl">// Diagram 2 — DFD Level 1</div>
+    <div class="sec-line"></div>
+  </div>
+  <div class="concepts-grid reveal">
+    <div class="cc cc-purple">
+      <div class="cc-ico">🔄</div>
+      <div class="cc-num">PROCESS 1</div>
+      <div class="cc-title">Process Sale</div>
+      <div class="cc-desc">Receives purchase details from Customer. Writes sales data to D2, updates inventory in D1 and D4, and stores customer info in D3.</div>
+    </div>
+    <div class="cc cc-blue">
+      <div class="cc-ico">📦</div>
+      <div class="cc-num">PROCESS 2</div>
+      <div class="cc-title">Manage Inventory</div>
+      <div class="cc-desc">Reads product/inventory data from D1. Sends inventory data to Generate Reports. Connected to the Vendor system through D4.</div>
+    </div>
+    <div class="cc cc-green">
+      <div class="cc-ico">📋</div>
+      <div class="cc-num">PROCESS 3</div>
+      <div class="cc-title">Generate Reports</div>
+      <div class="cc-desc">Receives data from Manage Inventory and Customer Management. Sends reports to Manager and receives/sends reports with Bank.</div>
+    </div>
+    <div class="cc cc-yellow">
+      <div class="cc-ico">👥</div>
+      <div class="cc-num">PROCESS 4</div>
+      <div class="cc-title">Customer Management</div>
+      <div class="cc-desc">Receives purchase details from Vendor. Reads and writes to D3 (Customer DB). Sends customer data to Generate Reports.</div>
+    </div>
+  </div>
+
+  <!-- DATA STORES -->
+  <div class="sys-box reveal">
+    <div class="sys-label">// Data Stores (D1–D4)</div>
+    <div class="sys-title">📁 System Data Stores</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-top:1rem;">
+      <div style="background:var(--surface);border:1px solid rgba(0,212,255,.2);border-radius:8px;padding:1rem;">
+        <div style="font-family:'Space Mono',monospace;font-size:.65rem;color:var(--accent2);margin-bottom:.4rem;">D1</div>
+        <div style="font-weight:700;margin-bottom:.3rem;">Inventory DB</div>
+        <div style="font-size:.8rem;color:var(--muted);">Stores all product stock levels and inventory records.</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid rgba(124,58,237,.2);border-radius:8px;padding:1rem;">
+        <div style="font-family:'Space Mono',monospace;font-size:.65rem;color:var(--accent);margin-bottom:.4rem;">D2</div>
+        <div style="font-weight:700;margin-bottom:.3rem;">Sales DB</div>
+        <div style="font-size:.8rem;color:var(--muted);">Records all completed sales transactions.</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:1rem;">
+        <div style="font-family:'Space Mono',monospace;font-size:.65rem;color:var(--accent3);margin-bottom:.4rem;">D3</div>
+        <div style="font-weight:700;margin-bottom:.3rem;">Customer DB</div>
+        <div style="font-size:.8rem;color:var(--muted);">Stores customer profiles and purchase history.</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid rgba(167,139,250,.2);border-radius:8px;padding:1rem;">
+        <div style="font-family:'Space Mono',monospace;font-size:.65rem;color:#a78bfa;margin-bottom:.4rem;">D4</div>
+        <div style="font-weight:700;margin-bottom:.3rem;">Vendor DB</div>
+        <div style="font-size:.8rem;color:var(--muted);">Stores supplier/vendor information and purchase orders.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIAGRAM 3: ACTIVITY -->
+  <div class="sec-head reveal">
+    <div class="sec-lbl">// Diagram 3 — Activity (Swim Lanes)</div>
+    <div class="sec-line"></div>
+  </div>
+  <div class="concepts-grid reveal">
+    <div class="cc cc-blue">
+      <div class="cc-ico">🛍️</div>
+      <div class="cc-num">CUSTOMER LANE</div>
+      <div class="cc-title">Approaches & Selects</div>
+      <div class="cc-desc">Customer approaches counter with items and selects their payment method (Credit Card or Cash) when asked by cashier.</div>
+    </div>
+    <div class="cc cc-green">
+      <div class="cc-ico">🏷️</div>
+      <div class="cc-num">CASHIER LANE</div>
+      <div class="cc-title">Greets & Processes</div>
+      <div class="cc-desc">Greets customer → scans all items → asks for payment method → swipes/inserts card if credit → gives receipt and bags items.</div>
+    </div>
+    <div class="cc cc-purple">
+      <div class="cc-ico">💻</div>
+      <div class="cc-num">SYSTEM LANE</div>
+      <div class="cc-title">Calculates & Authorizes</div>
+      <div class="cc-desc">Looks up item → displays price → calculates subtotal → connects to payment gateway → deducts payment → records sale → updates inventory → prints receipt.</div>
+    </div>
+    <div class="cc cc-yellow">
+      <div class="cc-ico">⚡</div>
+      <div class="cc-num">SYNC BARS</div>
+      <div class="cc-title">Synchronization</div>
+      <div class="cc-desc">Two synchronization bars coordinate parallel activities: after all items scanned, and after payment is processed before giving receipt.</div>
+    </div>
+  </div>
+
+  <!-- DIAGRAM 4: RANKING -->
+  <div class="sec-head reveal">
+    <div class="sec-lbl">// Diagram 4 — Ranking Matrix</div>
+    <div class="sec-line"></div>
+  </div>
+  <div class="concepts-grid reveal">
+    <div class="cc cc-purple">
+      <div class="cc-ico">🏆</div>
+      <div class="cc-num">RANK 1</div>
+      <div class="cc-title">Process Sale — HIGH</div>
+      <div class="cc-desc">Highest business value and complexity. Depends on the Payment System. Must be implemented first as it is the core revenue function.</div>
+    </div>
+    <div class="cc cc-blue">
+      <div class="cc-ico">📦</div>
+      <div class="cc-num">RANK 2</div>
+      <div class="cc-title">Manage Inventory — HIGH</div>
+      <div class="cc-desc">High business value, medium complexity, low technical risk. Depends on Vendor System. Critical for stock control and reordering.</div>
+    </div>
+    <div class="cc cc-green">
+      <div class="cc-ico">🔍</div>
+      <div class="cc-num">RANK 3</div>
+      <div class="cc-title">Browse Inventory — HIGH</div>
+      <div class="cc-desc">High business value, low-to-medium complexity, no dependencies. Easy to implement, high customer-facing impact.</div>
+    </div>
+    <div class="cc cc-yellow">
+      <div class="cc-ico">📊</div>
+      <div class="cc-num">RANK 4</div>
+      <div class="cc-title">Generate Reports — M-H</div>
+      <div class="cc-desc">Medium-high value and complexity. Depends on D1, D2, D3 data stores being populated first. Important for business decisions.</div>
+    </div>
+  </div>
+
+  <a href="sa-project.html" class="view-btn reveal">
+    📊 View Full Project Diagrams →
+  </a>
+
+</div>
+
+<div class="divider"></div>
+<footer>
+  <div class="fb">404 TEAM NOT FOUND</div>
+  <div class="ft">SYSTEM ANALYSIS · EXPLAINED · FCI TANTA</div>
+  <div class="ft">2025</div>
+</footer>
+</div>
+
+<script>
+const canvas=document.getElementById('bg-canvas'),ctx=canvas.getContext('2d');
+let W,H,nodes=[];
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+function initN(){nodes=[];const n=Math.floor(W*H/24000);for(let i=0;i<n;i++)nodes.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.8+.8,c:['#7c3aed','#00d4ff','#10b981'][Math.floor(Math.random()*3)]});}
+function drawBg(){ctx.clearRect(0,0,W,H);nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1;ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle=n.c;ctx.fill();});requestAnimationFrame(drawBg);}
+resize();initN();drawBg();window.addEventListener('resize',()=>{resize();initN();});
+const dc=document.getElementById('dots');['#7c3aed','#00d4ff','#10b981'].forEach(c=>{for(let i=0;i<4;i++){const d=document.createElement('div');d.className='dot';const s=Math.random()*3+2;d.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}vw;background:${c};animation-duration:${Math.random()*14+10}s;animation-delay:${Math.random()*8}s;`;dc.appendChild(d);}});
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}}),{threshold:.08});
+document.querySelectorAll('.reveal').forEach(r=>obs.observe(r));
+</script>
+</body>
+</html>
