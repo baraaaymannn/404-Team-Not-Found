@@ -413,7 +413,15 @@ function submitPw(){
   const val = document.getElementById('pw-input').value.trim().toLowerCase();
   if(val === PASSWORDS[_pwKey]){
     document.getElementById('pw-modal').style.display = 'none';
-    window.location.href = _pwTarget;
+    
+    // Show celebration only for SA
+    if(_pwKey === 'sa') {
+      showCelebration(() => {
+        window.location.href = _pwTarget;
+      });
+    } else {
+      window.location.href = _pwTarget;
+    }
   } else {
     const err = document.getElementById('pw-err');
     const box = document.getElementById('pw-box');
@@ -426,6 +434,104 @@ function submitPw(){
     box.style.animation = 'shake .4s ease';
     setTimeout(()=>{ inp.style.borderColor='#1e2d4a'; box.style.animation='none'; },1500);
   }
+}
+
+function showCelebration(callback) {
+  // Create celebration modal
+  const cel = document.createElement('div');
+  cel.id = 'celebration';
+  cel.innerHTML = `
+    <style>
+      #celebration {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        background: linear-gradient(135deg, #7c3aed, #5b21b6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.5s ease;
+      }
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+      .cel-box {
+        text-align: center;
+        color: #fff;
+        max-width: 600px;
+        padding: 3rem 2rem;
+        animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      }
+      @keyframes bounceIn {
+        0% { transform: scale(0); opacity: 0; }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      .cel-emoji {
+        font-size: 8rem;
+        animation: spin 2s ease-in-out infinite;
+        display: inline-block;
+      }
+      @keyframes spin {
+        0%, 100% { transform: rotate(0deg) scale(1); }
+        50% { transform: rotate(360deg) scale(1.2); }
+      }
+      .cel-title {
+        font-size: 2.5rem;
+        font-weight: 900;
+        margin: 1.5rem 0 1rem;
+        letter-spacing: 2px;
+      }
+      .cel-msg {
+        font-size: 1.3rem;
+        line-height: 1.8;
+        font-weight: 600;
+        opacity: 0.95;
+      }
+      .confetti {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background: #fff;
+        animation: confettiFall 3s linear infinite;
+      }
+      @keyframes confettiFall {
+        0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+      }
+    </style>
+    <div class="cel-box">
+      <div class="cel-emoji">🎉</div>
+      <div class="cel-title">THANK YOU!</div>
+      <div class="cel-msg">
+        We love you Doctor Noha<br>
+        Wish you give us the fullmark ❤️
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(cel);
+  
+  // Add confetti
+  for(let i = 0; i < 50; i++) {
+    setTimeout(() => {
+      const conf = document.createElement('div');
+      conf.className = 'confetti';
+      conf.style.left = Math.random() * 100 + '%';
+      conf.style.background = ['#fff', '#ffd700', '#ff69b4', '#00d4ff'][Math.floor(Math.random() * 4)];
+      conf.style.animationDelay = Math.random() * 2 + 's';
+      conf.style.animationDuration = (Math.random() * 2 + 2) + 's';
+      cel.appendChild(conf);
+    }, i * 30);
+  }
+  
+  // Fade out and redirect after 4 seconds
+  setTimeout(() => {
+    cel.style.animation = 'fadeOut 0.8s ease';
+    setTimeout(() => {
+      document.body.removeChild(cel);
+      callback();
+    }, 800);
+  }, 4000);
 }
 
 function closePw(){
