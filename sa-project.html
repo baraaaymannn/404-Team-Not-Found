@@ -905,5 +905,24 @@
   <div class="ft">FCI TANTA</div>
 </footer>
 </div>
+
+<script>
+const canvas=document.getElementById('bg-canvas'),ctx=canvas.getContext('2d');
+let W,H,nodes=[];
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+function initN(){nodes=[];const n=Math.floor(W*H/24000);for(let i=0;i<n;i++)nodes.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.8+.8,c:['#7c3aed','#00d4ff','#10b981'][Math.floor(Math.random()*3)]});}
+function drawBg(){ctx.clearRect(0,0,W,H);nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1;ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle=n.c;ctx.fill();});requestAnimationFrame(drawBg);}
+resize();initN();drawBg();window.addEventListener('resize',()=>{resize();initN();});
+const dc=document.getElementById('dots');['#7c3aed','#00d4ff','#10b981'].forEach(c=>{for(let i=0;i<4;i++){const d=document.createElement('div');d.className='dot';const s=Math.random()*3+2;d.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}vw;background:${c};animation-duration:${Math.random()*14+10}s;animation-delay:${Math.random()*8}s;`;dc.appendChild(d);}});
+function show(id,btn){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  btn.classList.add('active');
+  setTimeout(()=>document.querySelectorAll('#sec-'+id+' .reveal').forEach(el=>el.classList.add('visible')),50);
+}
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}}),{threshold:.08});
+document.querySelectorAll('.reveal').forEach(r=>obs.observe(r));
+</script>
 </body>
 </html>
