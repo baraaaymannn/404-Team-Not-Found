@@ -116,6 +116,7 @@
   <button class="tab" onclick="show('dfd',this)">02 · DFD</button>
   <button class="tab" onclick="show('act',this)">03 · Activity Diagram</button>
   <button class="tab" onclick="show('rank',this)">04 · Ranking Matrix</button>
+  <button class="tab" onclick="show('class',this)">05 · Class Diagram</button>
 </div>
 
 <!-- ══ USE CASE ══ -->
@@ -629,6 +630,274 @@
   </div>
 </div>
 
+<!-- ══ CLASS DIAGRAM ══ -->
+<div class="sec" id="sec-class">
+  <p class="sec-lbl">// Class Diagram</p>
+  <h2 class="sec-h">Class Diagram — Clothing Store Management System</h2>
+  <p class="sec-d">Shows all system classes, their attributes, methods, and relationships (association, inheritance, composition).</p>
+  <div class="dbox reveal">
+    <svg width="100%" viewBox="0 0 1200 820" xmlns="http://www.w3.org/2000/svg" style="min-width:950px;font-family:'Space Mono',monospace;">
+      <defs>
+        <marker id="arr-assoc" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3z" fill="#7c3aed" opacity=".8"/></marker>
+        <marker id="arr-comp"  markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto"><polygon points="5,0 10,5 5,10 0,5" fill="#00d4ff" opacity=".8"/></marker>
+        <marker id="arr-inh"   markerWidth="10" markerHeight="10" refX="5" refY="9" orient="auto"><polygon points="5,0 10,10 0,10" fill="none" stroke="#10b981" stroke-width="1.5"/></marker>
+      </defs>
+
+      <!-- ────────────────────────────────────────────
+           CLASSES
+      ──────────────────────────────────────────── -->
+
+      <!-- CUSTOMER -->
+      <g transform="translate(20,60)">
+        <rect width="180" height="160" rx="6" fill="#141c35" stroke="#00d4ff" stroke-width="1.5"/>
+        <rect width="180" height="28" rx="6" fill="rgba(0,212,255,0.12)" stroke="#00d4ff" stroke-width="1.5"/>
+        <text x="90" y="19" text-anchor="middle" font-size="11" fill="#00d4ff" font-weight="700">Customer</text>
+        <line x1="0" y1="28" x2="180" y2="28" stroke="#00d4ff" stroke-width="1"/>
+        <text x="8" y="45" font-size="9" fill="#94a3b8">- customerID: int</text>
+        <text x="8" y="59" font-size="9" fill="#94a3b8">- firstName: String</text>
+        <text x="8" y="73" font-size="9" fill="#94a3b8">- lastName: String</text>
+        <text x="8" y="87" font-size="9" fill="#94a3b8">- email: String</text>
+        <text x="8" y="101" font-size="9" fill="#94a3b8">- phone: String</text>
+        <line x1="0" y1="110" x2="180" y2="110" stroke="#1e2d4a" stroke-width="1"/>
+        <text x="8" y="125" font-size="9" fill="#e2e8f0">+ placeOrder()</text>
+        <text x="8" y="139" font-size="9" fill="#e2e8f0">+ viewHistory()</text>
+        <text x="8" y="153" font-size="9" fill="#e2e8f0">+ provideFeedback()</text>
+      </g>
+
+      <!-- ORDER -->
+      <g transform="translate(260,60)">
+        <rect width="190" height="175" rx="6" fill="#141c35" stroke="#7c3aed" stroke-width="1.5"/>
+        <rect width="190" height="28" rx="6" fill="rgba(124,58,237,0.12)" stroke="#7c3aed" stroke-width="1.5"/>
+        <text x="95" y="19" text-anchor="middle" font-size="11" fill="#7c3aed" font-weight="700">Order</text>
+        <line x1="0" y1="28" x2="190" y2="28" stroke="#7c3aed" stroke-width="1"/>
+        <text x="8" y="45" font-size="9" fill="#94a3b8">- orderID: int</text>
+        <text x="8" y="59" font-size="9" fill="#94a3b8">- orderDate: Date</text>
+        <text x="8" y="73" font-size="9" fill="#94a3b8">- totalAmount: float</text>
+        <text x="8" y="87" font-size="9" fill="#94a3b8">- status: String</text>
+        <text x="8" y="101" font-size="9" fill="#94a3b8">- paymentMethod: String</text>
+        <line x1="0" y1="110" x2="190" y2="110" stroke="#1e2d4a" stroke-width="1"/>
+        <text x="8" y="125" font-size="9" fill="#e2e8f0">+ processPayment()</text>
+        <text x="8" y="139" font-size="9" fill="#e2e8f0">+ cancelOrder()</text>
+        <text x="8" y="153" font-size="9" fill="#e2e8f0">+ generateReceipt()</text>
+        <text x="8" y="167" font-size="9" fill="#e2e8f0">+ applyDiscount()</text>
+      </g>
+
+      <!-- ORDER ITEM -->
+      <g transform="translate(510,60)">
+        <rect width="185" height="160" rx="6" fill="#141c35" stroke="#7c3aed" stroke-width="1.5"/>
+        <rect width="185" height="28" rx="6" fill="rgba(124,58,237,0.12)" stroke="#7c3aed" stroke-width="1.5"/>
+        <text x="92" y="19" text-anchor="middle" font-size="11" fill="#7c3aed" font-weight="700">OrderItem</text>
+        <line x1="0" y1="28" x2="185" y2="28" stroke="#7c3aed" stroke-width="1"/>
+        <text x="8" y="45" font-size="9" fill="#94a3b8">- itemID: int</text>
+        <text x="8" y="59" font-size="9" fill="#94a3b8">- quantity: int</text>
+        <text x="8" y="73" font-size="9" fill="#94a3b8">- unitPrice: float</text>
+        <text x="8" y="87" font-size="9" fill="#94a3b8">- discountPct: float</text>
+        <text x="8" y="101" font-size="9" fill="#94a3b8">- subtotal: float</text>
+        <line x1="0" y1="110" x2="185" y2="110" stroke="#1e2d4a" stroke-width="1"/>
+        <text x="8" y="125" font-size="9" fill="#e2e8f0">+ calculateSubtotal()</text>
+        <text x="8" y="139" font-size="9" fill="#e2e8f0">+ applyDiscount()</text>
+        <text x="8" y="153" font-size="9" fill="#e2e8f0">+ getDetails()</text>
+      </g>
+
+      <!-- PRODUCT -->
+      <g transform="translate(760,60)">
+        <rect width="185" height="175" rx="6" fill="#141c35" stroke="#10b981" stroke-width="1.5"/>
+        <rect width="185" height="28" rx="6" fill="rgba(16,185,129,0.12)" stroke="#10b981" stroke-width="1.5"/>
+        <text x="92" y="19" text-anchor="middle" font-size="11" fill="#10b981" font-weight="700">Product</text>
+        <line x1="0" y1="28" x2="185" y2="28" stroke="#10b981" stroke-width="1"/>
+        <text x="8" y="45" font-size="9" fill="#94a3b8">- productID: int</text>
+        <text x="8" y="59" font-size="9" fill="#94a3b8">- name: String</text>
+        <text x="8" y="73" font-size="9" fill="#94a3b8">- size: String</text>
+        <text x="8" y="87" font-size="9" fill="#94a3b8">- color: String</text>
+        <text x="8" y="101" font-size="9" fill="#94a3b8">- price: float</text>
+        <text x="8" y="115" font-size="9" fill="#94a3b8">- sku: String</text>
+        <line x1="0" y1="124" x2="185" y2="124" stroke="#1e2d4a" stroke-width="1"/>
+        <text x="8" y="139" font-size="9" fill="#e2e8f0">+ getDetails()</text>
+        <text x="8" y="153" font-size="9" fill="#e2e8f0">+ updatePrice()</text>
+        <text x="8" y="167" font-size="9" fill="#e2e8f0">+ isAvailable()</text>
+      </g>
+
+      <!-- CATEGORY -->
+      <g transform="translate(1005,60)">
+        <rect width="175" height="145" rx="6" fill="#141c35" stroke="#10b981" stroke-width="1.5"/>
+        <rect width="175" height="28" rx="6" fill="rgba(16,185,129,0.12)" stroke="#10b981" stroke-width="1.5"/>
+        <text x="87" y="19" text-anchor="middle" font-size="11" fill="#10b981" font-weight="700">Category</text>
+        <line x1="0" y1="28" x2="175" y2="28" stroke="#10b981" stroke-width="1"/>
+        <text x="8" y="45" font-size="9" fill="#94a3b8">- categoryID: int</text>
+        <text x="8" y="59" font-size="9" fill="#94a3b8">- name: String</text>
+        <text x="8" y="73" font-size="9" fill="#94a3b8">- description: String</text>
+        <line x1="0" y1="82" x2="175" y2="82" stroke="#1e2d4a" stroke-width="1"/>
+        <text x="8" y="97" font-size="9" fill="#e2e8f0">+ getProducts()</text>
+        <text x="8" y="111" font-size="9" fill="#e2e8f0">+ addProduct()</text>
+        <text x="8" y="125" font-size="9" fill="#e2e8f0">+ removeProduct()</text>
+        <text x="8" y="139" font-size="9" fill="#e2e8f0">+ getName()</text>
+      </g>
+
+      <!-- INVENTORY -->
+      <g transform="translate(760,310)">
+        <rect width="185" height="160" rx="6" fill="#141c35" stroke="#f59e0b" stroke-width="1.5"/>
+        <rect width="185" height="28" rx="6" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="92" y="19" text-anchor="middle" font-size="11" fill="#f59e0b" font-weight="700">Inventory</text>
+        <line x1="0" y1="28" x2="185" y2="28" stroke="#f59e0b" stroke-width="1"/>
+        <text x="8" y="45" font-size="9" fill="#94a3b8">- inventoryID: int</text>
+        <text x="8" y="59" font-size="9" fill="#94a3b8">- quantityOnHand: int</text>
+        <text x="8" y="73" font-size="9" fill="#94a3b8">- reorderLevel: int</text>
+        <text x="8" y="87" font-size="9" fill="#94a3b8">- location: String</text>
+        <text x="8" y="101" font-size="9" fill="#94a3b8">- lastUpdated: Date</text>
+        <line x1="0" y1="110" x2="185" y2="110" stroke="#1e2d4a" stroke-width="1"/>
+        <text x="8" y="125" font-size="9" fill="#e2e8f0">+ updateStock()</text>
+        <text x="8" y="139" font-size="9" fill="#e2e8f0">+ checkReorder()</text>
+        <text x="8" y="153" font-size="9" fill="#e2e8f0">+ getLowStock()</text>
+      </g>
+
+      <!-- EMPLOYEE (abstract) -->
+      <g transform="translate(20,340)">
+        <rect width="180" height="165" rx="6" fill="#141c35" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="6,3"/>
+        <rect width="180" height="28" rx="6" fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="6,3"/>
+        <text x="90" y="15" text-anchor="middle" font-size="9" fill="#a78bfa">«abstract»</text>
+        <text x="90" y="24" text-anchor="middle" font-size="11" fill="#a78bfa" font-weight="700">Employee</text>
+        <line x1="0" y1="28" x2="180" y2="28" stroke="#a78bfa" stroke-width="1"/>
+        <text x="8" y="45" font-size="9" fill="#94a3b8">- employeeID: int</text>
+        <text x="8" y="59" font-size="9" fill="#94a3b8">- firstName: String</text>
+        <text x="8" y="73" font-size="9" fill="#94a3b8">- lastName: String</text>
+        <text x="8" y="87" font-size="9" fill="#94a3b8">- email: String</text>
+        <text x="8" y="101" font-size="9" fill="#94a3b8">- hireDate: Date</text>
+        <line x1="0" y1="110" x2="180" y2="110" stroke="#1e2d4a" stroke-width="1"/>
+        <text x="8" y="125" font-size="9" fill="#e2e8f0">+ login()</text>
+        <text x="8" y="139" font-size="9" fill="#e2e8f0">+ logout()</text>
+        <text x="8" y="153" font-size="9" fill="#e2e8f0">+ getDetails()</text>
+      </g>
+
+      <!-- CASHIER extends Employee -->
+      <g transform="translate(20,580)">
+        <rect width="180" height="150" rx="6" fill="#141c35" stroke="#10b981" stroke-width="1.5"/>
+        <rect width="180" height="28" rx="6" fill="rgba(16,185,129,0.12)" stroke="#10b981" stroke-width="1.5"/>
+        <text x="90" y="19" text-anchor="middle" font-size="11" fill="#10b981" font-weight="700">Cashier</text>
+        <line x1="0" y1="28" x2="180" y2="28" stroke="#10b981" stroke-width="1"/>
+        <text x="8" y="45" font-size="9" fill="#94a3b8">- cashierID: int</text>
+        <text x="8" y="59" font-size="9" fill="#94a3b8">- tillNumber: int</text>
+        <line x1="0" y1="68" x2="180" y2="68" stroke="#1e2d4a" stroke-width="1"/>
+        <text x="8" y="83" font-size="9" fill="#e2e8f0">+ processSale()</text>
+        <text x="8" y="97" font-size="9" fill="#e2e8f0">+ handleReturn()</text>
+        <text x="8" y="111" font-size="9" fill="#e2e8f0">+ scanItem()</text>
+        <text x="8" y="125" font-size="9" fill="#e2e8f0">+ giveReceipt()</text>
+        <text x="8" y="139" font-size="9" fill="#e2e8f0">+ updateInventory()</text>
+      </g>
+
+      <!-- MANAGER extends Employee -->
+      <g transform="translate(250,580)">
+        <rect width="190" height="150" rx="6" fill="#141c35" stroke="#f59e0b" stroke-width="1.5"/>
+        <rect width="190" height="28" rx="6" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="95" y="19" text-anchor="middle" font-size="11" fill="#f59e0b" font-weight="700">Manager</text>
+        <line x1="0" y1="28" x2="190" y2="28" stroke="#f59e0b" stroke-width="1"/>
+        <text x="8" y="45" font-size="9" fill="#94a3b8">- department: String</text>
+        <text x="8" y="59" font-size="9" fill="#94a3b8">- accessLevel: int</text>
+        <line x1="0" y1="68" x2="190" y2="68" stroke="#1e2d4a" stroke-width="1"/>
+        <text x="8" y="83" font-size="9" fill="#e2e8f0">+ generateReport()</text>
+        <text x="8" y="97" font-size="9" fill="#e2e8f0">+ manageStaff()</text>
+        <text x="8" y="111" font-size="9" fill="#e2e8f0">+ setPromotion()</text>
+        <text x="8" y="125" font-size="9" fill="#e2e8f0">+ manageInventory()</text>
+        <text x="8" y="139" font-size="9" fill="#e2e8f0">+ systemAdmin()</text>
+      </g>
+
+      <!-- PAYMENT -->
+      <g transform="translate(510,340)">
+        <rect width="185" height="160" rx="6" fill="#141c35" stroke="#7c3aed" stroke-width="1.5"/>
+        <rect width="185" height="28" rx="6" fill="rgba(124,58,237,0.12)" stroke="#7c3aed" stroke-width="1.5"/>
+        <text x="92" y="19" text-anchor="middle" font-size="11" fill="#7c3aed" font-weight="700">Payment</text>
+        <line x1="0" y1="28" x2="185" y2="28" stroke="#7c3aed" stroke-width="1"/>
+        <text x="8" y="45" font-size="9" fill="#94a3b8">- paymentID: int</text>
+        <text x="8" y="59" font-size="9" fill="#94a3b8">- amount: float</text>
+        <text x="8" y="73" font-size="9" fill="#94a3b8">- method: String</text>
+        <text x="8" y="87" font-size="9" fill="#94a3b8">- status: String</text>
+        <text x="8" y="101" font-size="9" fill="#94a3b8">- transactionDate: Date</text>
+        <line x1="0" y1="110" x2="185" y2="110" stroke="#1e2d4a" stroke-width="1"/>
+        <text x="8" y="125" font-size="9" fill="#e2e8f0">+ processPayment()</text>
+        <text x="8" y="139" font-size="9" fill="#e2e8f0">+ authorizeCard()</text>
+        <text x="8" y="153" font-size="9" fill="#e2e8f0">+ refund()</text>
+      </g>
+
+      <!-- PROMOTION -->
+      <g transform="translate(1005,310)">
+        <rect width="175" height="155" rx="6" fill="#141c35" stroke="#f59e0b" stroke-width="1.5"/>
+        <rect width="175" height="28" rx="6" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="87" y="19" text-anchor="middle" font-size="11" fill="#f59e0b" font-weight="700">Promotion</text>
+        <line x1="0" y1="28" x2="175" y2="28" stroke="#f59e0b" stroke-width="1"/>
+        <text x="8" y="45" font-size="9" fill="#94a3b8">- promoID: int</text>
+        <text x="8" y="59" font-size="9" fill="#94a3b8">- code: String</text>
+        <text x="8" y="73" font-size="9" fill="#94a3b8">- discountPct: float</text>
+        <text x="8" y="87" font-size="9" fill="#94a3b8">- startDate: Date</text>
+        <text x="8" y="101" font-size="9" fill="#94a3b8">- endDate: Date</text>
+        <line x1="0" y1="110" x2="175" y2="110" stroke="#1e2d4a" stroke-width="1"/>
+        <text x="8" y="125" font-size="9" fill="#e2e8f0">+ isActive()</text>
+        <text x="8" y="139" font-size="9" fill="#e2e8f0">+ applyToOrder()</text>
+        <text x="8" y="153" font-size="9" fill="#e2e8f0">+ validate()</text>
+      </g>
+
+      <!-- ────────────────────────────────────────────
+           RELATIONSHIPS
+      ──────────────────────────────────────────── -->
+
+      <!-- Customer 1 → places → * Order -->
+      <line x1="200" y1="130" x2="258" y2="130" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arr-assoc)"/>
+      <text x="204" y="122" font-size="8" fill="#7c3aed">1</text>
+      <text x="238" y="122" font-size="8" fill="#7c3aed">places *</text>
+
+      <!-- Order 1 → contains → * OrderItem (composition) -->
+      <line x1="450" y1="145" x2="508" y2="145" stroke="#00d4ff" stroke-width="1.5" marker-end="url(#arr-comp)"/>
+      <text x="454" y="137" font-size="8" fill="#00d4ff">1</text>
+      <text x="470" y="137" font-size="8" fill="#00d4ff">has *</text>
+
+      <!-- OrderItem * → refers → 1 Product -->
+      <line x1="695" y1="145" x2="758" y2="145" stroke="#10b981" stroke-width="1.5" marker-end="url(#arr-assoc)"/>
+      <text x="699" y="137" font-size="8" fill="#10b981">*</text>
+      <text x="718" y="137" font-size="8" fill="#10b981">refers 1</text>
+
+      <!-- Product * → belongs to → 1 Category -->
+      <line x1="945" y1="130" x2="1003" y2="130" stroke="#10b981" stroke-width="1.5" marker-end="url(#arr-assoc)"/>
+      <text x="949" y="122" font-size="8" fill="#10b981">*</text>
+      <text x="960" y="122" font-size="8" fill="#10b981">in 1</text>
+
+      <!-- Product 1 → tracked in → 1 Inventory -->
+      <line x1="852" y1="237" x2="852" y2="308" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arr-assoc)"/>
+      <text x="858" y="275" font-size="8" fill="#f59e0b">tracks</text>
+
+      <!-- Order 1 → has → 1 Payment (composition) -->
+      <line x1="355" y1="237" x2="510" y2="360" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arr-comp)"/>
+      <text x="400" y="295" font-size="8" fill="#7c3aed">has 1</text>
+
+      <!-- Order → uses → Promotion -->
+      <line x1="450" y1="155" x2="1003" y2="380" stroke="#f59e0b" stroke-width="1" stroke-dasharray="5,3" marker-end="url(#arr-assoc)"/>
+      <text x="700" y="265" font-size="8" fill="#f59e0b">uses</text>
+
+      <!-- Cashier --▷ Employee (inheritance) -->
+      <line x1="110" y1="578" x2="110" y2="507" stroke="#10b981" stroke-width="1.5" marker-end="url(#arr-inh)"/>
+
+      <!-- Manager --▷ Employee (inheritance) -->
+      <line x1="200" y1="578" x2="160" y2="507" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arr-inh)"/>
+
+      <!-- Cashier 1 → processes → * Order -->
+      <line x1="200" y1="640" x2="345" y2="200" stroke="#10b981" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr-assoc)"/>
+      <text x="215" y="420" font-size="8" fill="#10b981">processes</text>
+
+      <!-- LEGEND -->
+      <rect x="20" y="758" width="700" height="30" rx="3" fill="#0f1628" stroke="#1e2d4a"/>
+      <line x1="40" y1="773" x2="70" y2="773" stroke="#7c3aed" stroke-width="1.5"/>
+      <polygon points="70,770 78,773 70,776" fill="#7c3aed"/>
+      <text x="84" y="777" font-size="9" fill="#7c3aed">Association</text>
+      <line x1="200" y1="773" x2="230" y2="773" stroke="#00d4ff" stroke-width="1.5"/>
+      <polygon points="225,769 235,773 225,777" fill="#00d4ff"/>
+      <text x="240" y="777" font-size="9" fill="#00d4ff">Composition</text>
+      <line x1="360" y1="773" x2="390" y2="773" stroke="#10b981" stroke-width="1.5"/>
+      <polygon points="390,769 400,773 390,777" fill="none" stroke="#10b981" stroke-width="1.5"/>
+      <text x="406" y="777" font-size="9" fill="#10b981">Inheritance</text>
+      <line x1="510" y1="773" x2="540" y2="773" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4,3"/>
+      <polygon points="540,770 548,773 540,776" fill="#f59e0b"/>
+      <text x="554" y="777" font-size="9" fill="#f59e0b">Dependency</text>
+    </svg>
+  </div>
+</div>
+
 <div class="divider" style="margin-top:1rem;"></div>
 <footer>
   <div class="fb">404 TEAM NOT FOUND</div>
@@ -636,25 +905,5 @@
   <div class="ft">FCI TANTA</div>
 </footer>
 </div>
-
-<script>
-const canvas=document.getElementById('bg-canvas'),ctx=canvas.getContext('2d');
-let W,H,nodes=[];
-function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
-function initN(){nodes=[];const n=Math.floor(W*H/24000);for(let i=0;i<n;i++)nodes.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.8+.8,c:['#7c3aed','#00d4ff','#10b981'][Math.floor(Math.random()*3)]});}
-function drawBg(){ctx.clearRect(0,0,W,H);nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1;ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle=n.c;ctx.fill();});requestAnimationFrame(drawBg);}
-resize();initN();drawBg();window.addEventListener('resize',()=>{resize();initN();});
-const dc=document.getElementById('dots');['#7c3aed','#00d4ff','#10b981'].forEach(c=>{for(let i=0;i<4;i++){const d=document.createElement('div');d.className='dot';const s=Math.random()*3+2;d.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}vw;background:${c};animation-duration:${Math.random()*14+10}s;animation-delay:${Math.random()*8}s;`;dc.appendChild(d);}});
-
-function show(id,btn){
-  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('sec-'+id).classList.add('active');
-  btn.classList.add('active');
-  setTimeout(()=>document.querySelectorAll('#sec-'+id+' .reveal').forEach(el=>el.classList.add('visible')),50);
-}
-const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}}),{threshold:.08});
-document.querySelectorAll('.reveal').forEach(r=>obs.observe(r));
-</script>
 </body>
 </html>
